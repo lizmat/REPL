@@ -1,0 +1,9 @@
+use Test;
+use REPL;
+
+plan 2;
+
+isa-ok REPL.new, REPL, 'can we create a REPL object';
+isa-ok repl, REPL, 'does the repl sub return a REPL object';
+
+# vim: expandtab shiftwidth=4

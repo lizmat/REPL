@@ -1,0 +1,26 @@
+{
+  "auth": "zef:lizmat",
+  "authors": [
+    "Elizabeth Mattijsen"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "A more easily configurable REPL",
+  "license": "Artistic-2.0",
+  "name": "REPL",
+  "perl": "6.d",
+  "provides": {
+    "REPL": "lib/REPL.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "https://github.com/lizmat/REPL.git",
+  "tags": [
+    "REPL"
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
