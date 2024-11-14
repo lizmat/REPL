@@ -3,7 +3,7 @@ use nqp;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
-my constant @predefined = <Readline Fallback>;
+my constant @predefined = <Readline Linenoise Fallback>;
 
 PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
     note "Uncaught exception on thread $*THREAD.id():\n"
@@ -56,9 +56,6 @@ role REPL::Fallback {
 #- Readline --------------------------------------------------------------------
 role REPL::Readline does REPL::Fallback {
     has $!Readline is built;
-    method read($prompt) {
-        $!Readline.readline($prompt)
-    }
 
     method new() {
         with try "use Readline; Readline.new".EVAL {
@@ -67,6 +64,10 @@ role REPL::Readline does REPL::Fallback {
         else {
             Nil
         }
+    }
+
+    method read($prompt) {
+        $!Readline.readline($prompt)
     }
 
     method add-history($code --> Nil) {
@@ -79,6 +80,45 @@ role REPL::Readline does REPL::Fallback {
 
     method save-history() {
         $!Readline.write-history($.history.absolute);
+    }
+}
+
+#- Linenoise -------------------------------------------------------------------
+
+role REPL::Linenoise does REPL::Fallback {
+    has &!linenoise            is built;
+    has &!linenoiseHistoryAdd  is built;
+    has &!linenoiseHistoryLoad is built;
+    has &!linenoiseHistorySave is built;
+
+    method new() {
+        with try "use Linenoise; Linenoise.WHO".EVAL -> %WHO {
+            self.bless(
+              linenoise            => %WHO<&linenoise>,
+              linenoiseHistoryAdd  => %WHO<&linenoiseHistoryAdd>,
+              linenoiseHistoryLoad => %WHO<&linenoiseHistoryLoad>,
+              linenoiseHistorySave => %WHO<&linenoiseHistorySave>,
+            );
+        }
+        else {
+            Nil
+        }
+    }
+
+    method read($prompt) {
+        &!linenoise($prompt)
+    }
+
+    method add-history($code --> Nil) {
+        &!linenoiseHistoryAdd($code);
+    }
+
+    method read-history() {
+        &!linenoiseHistoryLoad($.history.absolute);
+    }
+
+    method save-history() {
+        &!linenoiseHistorySave($.history.absolute);
     }
 }
 

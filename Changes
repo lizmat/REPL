@@ -2,5 +2,8 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.2  2024-11-14T21:08:26+01:00
+    - Add support for Linenoise module
+
 0.0.1  2024-11-14T20:34:34+01:00
-    - Initial version
+    - Initial version with support for Readline module

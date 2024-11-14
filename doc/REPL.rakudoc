@@ -31,8 +31,8 @@ based on "modern" Raku
 REPL code in Rakudo with the code in this module.
 
 This is very much a work in progress. Until now, only the C<Readline>
-module is supported.  The C<Linenoise> and C<Terminal::LineEditor>
-modules will be supported shortly.
+and C<Linenoise> modules are supported.  The  C<Terminal::LineEditor>
+module will be supported shortly.
 
 =head1 AUTHOR
 

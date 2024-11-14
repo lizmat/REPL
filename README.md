@@ -30,7 +30,7 @@ The following goals have been defined so far:
 
   * Once the API for customization is more stable, replace the REPL code in Rakudo with the code in this module.
 
-This is very much a work in progress. Until now, only the `Readline` module is supported. The `Linenoise` and `Terminal::LineEditor` modules will be supported shortly.
+This is very much a work in progress. Until now, only the `Readline` and `Linenoise` modules are supported. The `Terminal::LineEditor` module will be supported shortly.
 
 AUTHOR
 ======
