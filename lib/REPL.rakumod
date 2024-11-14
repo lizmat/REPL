@@ -3,7 +3,7 @@ use nqp;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
-my constant @predefined = <Readline Linenoise Fallback>;
+my constant @predefined = <Readline LineEditor Linenoise Fallback>;
 
 PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
     note "Uncaught exception on thread $*THREAD.id():\n"
@@ -48,7 +48,7 @@ role REPL::Fallback {
 
         $!history
     }
-    method read-history() { }
+    method load-history() { }
     method add-history($) { }
     method save-history() { }
 }
@@ -74,8 +74,8 @@ role REPL::Readline does REPL::Fallback {
         $!Readline.add-history($code);
     }
 
-    method read-history() {
-        $!Readline.read-history($.history.absolute);
+    method load-history() {
+        $!Readline.load-history($.history.absolute);
     }
 
     method save-history() {
@@ -113,12 +113,46 @@ role REPL::Linenoise does REPL::Fallback {
         &!linenoiseHistoryAdd($code);
     }
 
-    method read-history() {
+    method load-history() {
         &!linenoiseHistoryLoad($.history.absolute);
     }
 
     method save-history() {
         &!linenoiseHistorySave($.history.absolute);
+    }
+}
+
+#- Terminal::LineEditor --------------------------------------------------------
+role REPL::LineEditor does REPL::Fallback {
+    has $!LineEditor is built;
+
+    method new() {
+        with try Q:to/CODE/.EVAL {
+use Terminal::LineEditor;
+use Terminal::LineEditor::RawTerminalInput;
+Terminal::LineEditor::CLIInput.new
+CODE
+            self.bless(:LineEditor($_))
+        }
+        else {
+            Nil
+        }
+    }
+
+    method read($prompt) {
+        $!LineEditor.prompt($prompt.chop)
+    }
+
+    method add-history($code --> Nil) {
+        $!LineEditor.add-history($code);
+    }
+
+    method load-history() {
+        $!LineEditor.load-history($.history);
+    }
+
+    method save-history() {
+        $!LineEditor.save-history($.history);
     }
 }
 
@@ -137,7 +171,7 @@ class REPL {
 
     # The editor logic being used
     has Mu   $.editor handles <
-      add-history ERR OUT read read-history save-history silent teardown VAL
+      add-history ERR OUT read load-history save-history silent teardown VAL
     >;
 
     # The current NQP context that has all of the definitions that were
@@ -177,11 +211,21 @@ class REPL {
 
         # When running a REPL inside of emacs, the fallback behaviour
         # should be used, as that is provided by emacs itself
-        $!editor = REPL::Fallback.new if %*ENV<INSIDE_EMACS>;
+        if %*ENV<INSIDE_EMACS> {
+            $!editor = REPL::Fallback.new;
+        }
 
+        # A specific editor support has been requested
+        elsif %*ENV<RAKUDO_LINE_EDITOR> -> $editor {
+            $!editor = try REPL::{$editor}.new if REPL::{$editor}:exists;
+            note "Failed to load support for '$editor'" without $!editor;
+        }
+
+        # Still no editor yet, try them in order, any non-standard ones
+        # first, in alphabetical order
         without $!editor {
             for |(REPL::.keys (-) @predefined).keys.sort(*.fc), |@predefined {
-                last if $!editor = REPL::{$_}.new;
+                last if $!editor = try REPL::{$_}.new;
             }
         }
     }
@@ -214,7 +258,7 @@ class REPL {
         reset;
 
         # Some initializations
-        self.read-history;
+        self.load-history;
         my $last-code = '';
 
         # Make sure we can reference previous values from within the

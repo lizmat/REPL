@@ -22,6 +22,8 @@ by Rakudo before the 2024.11 release.
 
 The following goals have been defined so far:
 
+=item Adherence to supporting currently by the REPL logic recognized
+environment variables
 =item Provide an actual REPL class that can be easily configured and
 provide documentation on how this can be done.
 =item Attempt to fix many outstanding bugs about the Rakudo REPL.
@@ -30,9 +32,9 @@ based on "modern" Raku
 =item Once the API for customization is more stable, replace the
 REPL code in Rakudo with the code in this module.
 
-This is very much a work in progress. Until now, only the C<Readline>
-and C<Linenoise> modules are supported.  The  C<Terminal::LineEditor>
-module will be supported shortly.
+This is very much a work in progress.  All previously supported line
+editors (C<Readline>, C<Linenoise> and C<Terminal::LineEditor> are
+now supported.
 
 =head1 AUTHOR
 

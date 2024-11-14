@@ -22,6 +22,8 @@ The REPL module is a re-imagining of the REPL functionality as offered by Rakudo
 
 The following goals have been defined so far:
 
+  * Adherence to supporting currently by the REPL logic recognized environment variables
+
   * Provide an actual REPL class that can be easily configured and provide documentation on how this can be done.
 
   * Attempt to fix many outstanding bugs about the Rakudo REPL.
@@ -30,7 +32,7 @@ The following goals have been defined so far:
 
   * Once the API for customization is more stable, replace the REPL code in Rakudo with the code in this module.
 
-This is very much a work in progress. Until now, only the `Readline` and `Linenoise` modules are supported. The `Terminal::LineEditor` module will be supported shortly.
+This is very much a work in progress. All previously supported line editors (`Readline`, `Linenoise` and `Terminal::LineEditor` are now supported.
 
 AUTHOR
 ======
