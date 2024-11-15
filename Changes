@@ -2,6 +2,9 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.4  2024-11-15T16:17:57+01:00
+    - Unbreak support for Readline
+
 0.0.3  2024-11-14T21:56:24+01:00
     - Add support for Terminal::LineEditor  module
     - Add support for RAKUDO_LINE_EDITOR environment variable
