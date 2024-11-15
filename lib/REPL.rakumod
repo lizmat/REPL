@@ -75,7 +75,7 @@ role REPL::Readline does REPL::Fallback {
     }
 
     method load-history() {
-        $!Readline.load-history($.history.absolute);
+        $!Readline.read-history($.history.absolute);
     }
 
     method save-history() {
