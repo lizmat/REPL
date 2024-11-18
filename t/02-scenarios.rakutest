@@ -1,0 +1,44 @@
+use Test;
+use REPL;
+
+plan 2;
+
+role REPL::Test does REPL::Fallback {
+    has @.reads;
+    has @.values;
+    has $.VAL is built(False);
+
+    has int $.index = -1;
+
+    my class VAL {
+        has $.editor;
+        method say($value) {
+            my int $index = $!editor.index;
+            is-deeply $value, $!editor.values[$index], "Test #$index";
+        }
+    }
+
+    method TWEAK(--> Nil) {
+        $!VAL := VAL.new(:editor(self))
+    }
+
+    method silent(--> True) { }
+    method history(--> Nil) { }
+
+    method read($) { @!reads[++$!index] }
+    method VAL() { $!VAL }
+}
+
+my $tester = REPL::Test.new(
+  reads => (
+    'my $a = 42',
+    '$a'
+  ),
+  values => (
+    42, 42
+  )
+);
+
+repl :editor($tester), :output-method<self>;
+
+# vim: expandtab shiftwidth=4
