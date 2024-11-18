@@ -1,6 +1,7 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Move the editor roles to the REPL::Editor:: namespace
 
 0.0.5  2024-11-18T15:19:17+01:00
     - Change REPL class into a role for optimal flexibility

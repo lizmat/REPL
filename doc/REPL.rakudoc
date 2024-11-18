@@ -56,7 +56,7 @@ code, and actually run the REPL at a later time in another scope.
 
 The C<REPL> role is what usually gets punned into a class.
 
-The C<REPL::Fallback> role provides all of the logic if no specific
+The C<REPL::Editor::Fallback> role provides all of the logic if no specific
 editor has been found.  It also serves as a base role for specific
 editor roles, such as C<REPL::Readline>, C<REPL::LineEditor> and
 C<REPL::Linenoise>.
@@ -92,7 +92,7 @@ Evaluate, Print Loop.  It allows for these named arguments:
 =head3 :editor
 
 The editor logic to be used.  Can be specified as a string, or
-as an instantiated object that inplements the C<REPL::Fallback>
+as an instantiated object that inplements the C<REPL::Editor::Fallback>
 role.
 
 If the C<INSIDE_EMACS> environment variable is set with a true
@@ -105,10 +105,10 @@ will first be tried.  If that fails, an error message will be
 shown.
 
 If the value is not a string, it is expected to be a class that
-implements to the C<REPL::Fallback> interface.
+implements to the C<REPL::Editor::Fallback> interface.
 
 Otherwise defaults to C<Any>, which means to search first for unknown
-roles in the C<REPL::> namespace, then to try if there is support
+roles in the C<REPL::Editor::> namespace, then to try if there is support
 installed for L<C<Readline>|https://raku.land/zef:clarkema/Readline>,
 L<C<LineEditor>|https://raku.land/zef:japhb/Terminal::LineEditor>, or
 L<C<Linenoise>|https://raku.land/zef:raku-community-modules/Linenoise>.
@@ -164,7 +164,7 @@ Actually run the REPL.
 =head1 EDITOR ROLES
 
 An editor role must supply the methods as defined by the
-C<REPL::Fallback> role.  Its C<new> method should either return
+C<REPL::Editor::Fallback> role.  Its C<new> method should either return
 an instantiated class, or C<Nil> if the class could not be
 instantiated (usually because of lack of installed modules).
 
@@ -174,7 +174,7 @@ The other methods are (in alphabetical order):
 
 Expected to take a single string argument to be added to the
 (possibLy persistent) history of the REPL's interactive sessions.
-Does not perform any action by default in C<REPL::Fallback>.
+Does not perform any action by default in C<REPL::Editor::Fallback>.
 
 =head2 ERR
 
@@ -182,7 +182,7 @@ Expected to take no arguments, and return an object that supports
 a C<.say> method.  Will be used instead of the regular C<$*ERR>
 during evalution of the user's input, and to output any error
 messages during the interacive session.  Defaults to C<$*ERR>
-in C<REPL::Fallback>.
+in C<REPL::Editor::Fallback>.
 
 =head2 history
 
@@ -190,7 +190,7 @@ Expected to take no arguments, and return an object that represents
 the (possibly persistent) history of the REPL's interactive
 sessions.
 
-By default (by the implementation of the C<REPL::Fallback> role
+By default (by the implementation of the C<REPL::Editor::Fallback> role
 will first look for a C<RAKUDO_HIST> environment variable and
 return an C<IO::Path> object for that.  If that environment
 variable is not specified, will check the C<$*HOME> and C<$*TMPDIR>
@@ -205,14 +205,14 @@ that failed).
 Expected to take no arguments and load any persistent history
 information, as indicated by its C<history> method.  Does not
 perform any action by the default implementation in the
-C<REPL::Fallback> role.
+C<REPL::Editor::Fallback> role.
 
 =head2 OUT
 
 Expected to take no arguments, and return an object that supports
 a C<.say> method.  Will be used instead of the regular C<$*OUT>
 during evalution of the user's input.  Defaults to C<$*OUT> in
-C<REPL::Fallback>.
+C<REPL::Editor::Fallback>.
 
 =head2 read
 
@@ -222,21 +222,21 @@ return an undefined value to indicate the user wishes to exit
 the REPL.
 
 Defaults to showing the prompt and taking a line from C<$*IN> in
-C<REPL::Fallback>.
+C<REPL::Editor::Fallback>.
 
 =head2 save-history
 
 Expected to take no arguments and save any persistent history
 information, as indicated by its C<history> method.  Does not
 perform any action by the default implementation in the
-C<REPL::Fallback> role.
+C<REPL::Editor::Fallback> role.
 
 =head2 silent
 
 Expected to take no arguments, and return a C<Bool> indicating
 the last evaluation produced any output.
 
-Implemented in the C<REPL::Fallback> role as taking the position
+Implemented in the C<REPL::Editor::Fallback> role as taking the position
 of the file pointers on C<$*OUT> and C<$*ERR> (every time the
 C<.OUT> and C<.ERR> methods are called) and compare that to
 their current positions.
@@ -249,7 +249,7 @@ the last evaluation (converted to string by its C<:output-method>.
 
 Expected to take no arguments.  Will be called whenever the user
 indicates that they want to exit the REPL.  Will call the
-C<save-history> method By default in the C<REPL::Fallback>
+C<save-history> method By default in the C<REPL::Editor::Fallback>
 implementation.
 
 =head2 VAL
@@ -257,25 +257,25 @@ implementation.
 Expected to take no arguments, and return an object that supports
 a C<.say> method.  Will be used instead of the regular C<$*OUT>
 to output the result of an evaluation if that output did not cause
-any output by itself.  Defaults to C<$*OUT> in C<REPL::Fallback>.
+any output by itself.  Defaults to C<$*OUT> in C<REPL::Editor::Fallback>.
 
-=head2 REPL::Fallback
+=head2 REPL::Editor::Fallback
 
 Apart from the definition of the interface for editors, it provides
 the default logic for handling the interaction with the user.
 
-=head2 REPL::Readline
+=head2 REPL::Editor::Readline
 
 The role that implements the user interface using the
 L<C<Readline>|https://raku.land/zef:clarkema/Readline> module.
 
-=head2 REPL::LineEditor
+=head2 REPL::Editor::LineEditor
 
 The role that implements the user interface using the
 L<C<Terminal::LineEditor>|https://raku.land/zef:japhb/Terminal::LineEditor>
 module.
 
-=head2 REPL::Linenoise
+=head2 REPL::Editor::Linenoise
 
 The role that implements the user interface using the
 L<C<Linenoise>|https://raku.land/zef:raku-community-modules/Linenoise>

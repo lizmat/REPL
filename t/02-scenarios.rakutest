@@ -3,7 +3,7 @@ use REPL;
 
 plan 2;
 
-role REPL::Test does REPL::Fallback {
+role REPL::Test does REPL::Editor::Fallback {
     has @.reads;
     has @.values;
     has $.VAL is built(False);

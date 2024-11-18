@@ -14,7 +14,7 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
 role REPL { ... }
 
 #- Fallback---------------------------------------------------------------------
-role REPL::Fallback {
+role REPL::Editor::Fallback {
     has $!OUT-pos;
     has $!ERR-pos;
     has $.history;
@@ -54,7 +54,7 @@ role REPL::Fallback {
 }
 
 #- Readline --------------------------------------------------------------------
-role REPL::Readline does REPL::Fallback {
+role REPL::Editor::Readline does REPL::Editor::Fallback {
     has $!Readline is built;
 
     method new() {
@@ -85,7 +85,7 @@ role REPL::Readline does REPL::Fallback {
 
 #- Linenoise -------------------------------------------------------------------
 
-role REPL::Linenoise does REPL::Fallback {
+role REPL::Editor::Linenoise does REPL::Editor::Fallback {
     has &!linenoise            is built;
     has &!linenoiseHistoryAdd  is built;
     has &!linenoiseHistoryLoad is built;
@@ -123,7 +123,7 @@ role REPL::Linenoise does REPL::Fallback {
 }
 
 #- Terminal::LineEditor --------------------------------------------------------
-role REPL::LineEditor does REPL::Fallback {
+role REPL::Editor::LineEditor does REPL::Editor::Fallback {
     has $!LineEditor is built;
 
     method new() {
@@ -224,14 +224,14 @@ role REPL {
 
         # Try the given editor
         sub try-editor($editor) {
-            $!editor = try REPL::{$editor}.new;
+            $!editor = try REPL::Editor::{$editor}.new;
             note "Failed to load support for '$editor'" without $!editor;
         }
 
         # When running a REPL inside of emacs, the fallback behaviour
         # should be used, as that is provided by emacs itself
         if %*ENV<INSIDE_EMACS> {
-            $!editor = REPL::Fallback.new;
+            $!editor = REPL::Editor::Fallback.new;
         }
 
         # A specific editor support has been requested
@@ -247,8 +247,8 @@ role REPL {
         # Still no editor yet, try them in order, any non-standard ones
         # first, in alphabetical order
         without $!editor {
-            for |(REPL::.keys (-) @predefined).keys.sort(*.fc), |@predefined {
-                last if $!editor = try REPL::{$_}.new;
+            for |(REPL::Editor::.keys (-) @predefined).keys.sort(*.fc), |@predefined {
+                last if $!editor = try REPL::Editor::{$_}.new;
             }
         }
     }
@@ -306,7 +306,11 @@ role REPL {
             next if $code ~~ /^ <.ws> $/;  # nothing to work with
 
             # Evaluate the code
-            my $value := self.eval($code, |%_);
+            my $value := do {
+                temp $*OUT = self.OUT;
+                temp $*ERR = self.ERR;
+                self.eval($code, |%_)
+            }
 
             # Handle the special cases
             if $!state == MORE-INPUT {
@@ -397,8 +401,6 @@ role REPL {
         my $*CTXSAVE  := self;
         my $*MAIN_CTX := $!context;
         my $value := do {
-            temp $*OUT = self.OUT;
-            temp $*ERR = self.ERR;
             $!compiler.eval(
               $code.subst(/ '$*' \d+ /, { '@*_[' ~ $/.substr(2) ~ ']' }, :g),
               :outer_ctx($!context),

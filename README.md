@@ -52,7 +52,7 @@ ROLES
 
 The `REPL` role is what usually gets punned into a class.
 
-The `REPL::Fallback` role provides all of the logic if no specific editor has been found. It also serves as a base role for specific editor roles, such as `REPL::Readline`, `REPL::LineEditor` and `REPL::Linenoise`.
+The `REPL::Editor::Fallback` role provides all of the logic if no specific editor has been found. It also serves as a base role for specific editor roles, such as `REPL::Readline`, `REPL::LineEditor` and `REPL::Linenoise`.
 
 REPL
 ----
@@ -80,15 +80,15 @@ The `REPL` role embodies the information needed to run a Read, Evaluate, Print L
 
 ### :editor
 
-The editor logic to be used. Can be specified as a string, or as an instantiated object that inplements the `REPL::Fallback` role.
+The editor logic to be used. Can be specified as a string, or as an instantiated object that inplements the `REPL::Editor::Fallback` role.
 
 If the `INSIDE_EMACS` environment variable is set with a true value, then the `Fallback` editor will **always** be used, regardless of any other settings.
 
 If the `RAKUDO_LINE_EDITOR` environment variable is set, then its contents will be assumed as an indication of preference and will first be tried. If that fails, an error message will be shown.
 
-If the value is not a string, it is expected to be a class that implements to the `REPL::Fallback` interface.
+If the value is not a string, it is expected to be a class that implements to the `REPL::Editor::Fallback` interface.
 
-Otherwise defaults to `Any`, which means to search first for unknown roles in the `REPL::` namespace, then to try if there is support installed for [`Readline`](https://raku.land/zef:clarkema/Readline), [`LineEditor`](https://raku.land/zef:japhb/Terminal::LineEditor), or [`Linenoise`](https://raku.land/zef:raku-community-modules/Linenoise).
+Otherwise defaults to `Any`, which means to search first for unknown roles in the `REPL::Editor::` namespace, then to try if there is support installed for [`Readline`](https://raku.land/zef:clarkema/Readline), [`LineEditor`](https://raku.land/zef:japhb/Terminal::LineEditor), or [`Linenoise`](https://raku.land/zef:raku-community-modules/Linenoise).
 
 If that failed, then the `Fallback` editor logic will be used, which may cause a cumbersome user experience, unless the process was wrapped with a call to the [`rlwrap`](https://github.com/hanslub42/rlwrap) readline wrapper.
 
@@ -129,85 +129,85 @@ Actually run the REPL.
 EDITOR ROLES
 ============
 
-An editor role must supply the methods as defined by the `REPL::Fallback` role. Its `new` method should either return an instantiated class, or `Nil` if the class could not be instantiated (usually because of lack of installed modules).
+An editor role must supply the methods as defined by the `REPL::Editor::Fallback` role. Its `new` method should either return an instantiated class, or `Nil` if the class could not be instantiated (usually because of lack of installed modules).
 
 The other methods are (in alphabetical order):
 
 add-history
 -----------
 
-Expected to take a single string argument to be added to the (possibLy persistent) history of the REPL's interactive sessions. Does not perform any action by default in `REPL::Fallback`.
+Expected to take a single string argument to be added to the (possibLy persistent) history of the REPL's interactive sessions. Does not perform any action by default in `REPL::Editor::Fallback`.
 
 ERR
 ---
 
-Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*ERR` during evalution of the user's input, and to output any error messages during the interacive session. Defaults to `$*ERR` in `REPL::Fallback`.
+Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*ERR` during evalution of the user's input, and to output any error messages during the interacive session. Defaults to `$*ERR` in `REPL::Editor::Fallback`.
 
 history
 -------
 
 Expected to take no arguments, and return an object that represents the (possibly persistent) history of the REPL's interactive sessions.
 
-By default (by the implementation of the `REPL::Fallback` role will first look for a `RAKUDO_HIST` environment variable and return an `IO::Path` object for that. If that environment variable is not specified, will check the `$*HOME` and `$*TMPDIR` dynamic variables for the existence of a `.raku` subdirectory in that. If found, will return an `IO::Path` for the "rakudo-history" file in that subdirectory and try to create that if it didn't exist yet (and produce an error message if that failed).
+By default (by the implementation of the `REPL::Editor::Fallback` role will first look for a `RAKUDO_HIST` environment variable and return an `IO::Path` object for that. If that environment variable is not specified, will check the `$*HOME` and `$*TMPDIR` dynamic variables for the existence of a `.raku` subdirectory in that. If found, will return an `IO::Path` for the "rakudo-history" file in that subdirectory and try to create that if it didn't exist yet (and produce an error message if that failed).
 
 load-history
 ------------
 
-Expected to take no arguments and load any persistent history information, as indicated by its `history` method. Does not perform any action by the default implementation in the `REPL::Fallback` role.
+Expected to take no arguments and load any persistent history information, as indicated by its `history` method. Does not perform any action by the default implementation in the `REPL::Editor::Fallback` role.
 
 OUT
 ---
 
-Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*OUT` during evalution of the user's input. Defaults to `$*OUT` in `REPL::Fallback`.
+Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*OUT` during evalution of the user's input. Defaults to `$*OUT` in `REPL::Editor::Fallback`.
 
 read
 ----
 
 Expected to take a string argument with the prompt to be shown, and return the next line of input from the user. Expected to return an undefined value to indicate the user wishes to exit the REPL.
 
-Defaults to showing the prompt and taking a line from `$*IN` in `REPL::Fallback`.
+Defaults to showing the prompt and taking a line from `$*IN` in `REPL::Editor::Fallback`.
 
 save-history
 ------------
 
-Expected to take no arguments and save any persistent history information, as indicated by its `history` method. Does not perform any action by the default implementation in the `REPL::Fallback` role.
+Expected to take no arguments and save any persistent history information, as indicated by its `history` method. Does not perform any action by the default implementation in the `REPL::Editor::Fallback` role.
 
 silent
 ------
 
 Expected to take no arguments, and return a `Bool` indicating the last evaluation produced any output.
 
-Implemented in the `REPL::Fallback` role as taking the position of the file pointers on `$*OUT` and `$*ERR` (every time the `.OUT` and `.ERR` methods are called) and compare that to their current positions.
+Implemented in the `REPL::Editor::Fallback` role as taking the position of the file pointers on `$*OUT` and `$*ERR` (every time the `.OUT` and `.ERR` methods are called) and compare that to their current positions.
 
 If the method returns `True`, then the value `.VAL` method will be used to call the `.say` method on with the value of the last evaluation (converted to string by its `:output-method`.
 
 teardown
 --------
 
-Expected to take no arguments. Will be called whenever the user indicates that they want to exit the REPL. Will call the `save-history` method By default in the `REPL::Fallback` implementation.
+Expected to take no arguments. Will be called whenever the user indicates that they want to exit the REPL. Will call the `save-history` method By default in the `REPL::Editor::Fallback` implementation.
 
 VAL
 ---
 
-Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*OUT` to output the result of an evaluation if that output did not cause any output by itself. Defaults to `$*OUT` in `REPL::Fallback`.
+Expected to take no arguments, and return an object that supports a `.say` method. Will be used instead of the regular `$*OUT` to output the result of an evaluation if that output did not cause any output by itself. Defaults to `$*OUT` in `REPL::Editor::Fallback`.
 
-REPL::Fallback
---------------
+REPL::Editor::Fallback
+----------------------
 
 Apart from the definition of the interface for editors, it provides the default logic for handling the interaction with the user.
 
-REPL::Readline
---------------
+REPL::Editor::Readline
+----------------------
 
 The role that implements the user interface using the [`Readline`](https://raku.land/zef:clarkema/Readline) module.
 
-REPL::LineEditor
-----------------
+REPL::Editor::LineEditor
+------------------------
 
 The role that implements the user interface using the [`Terminal::LineEditor`](https://raku.land/zef:japhb/Terminal::LineEditor) module.
 
-REPL::Linenoise
----------------
+REPL::Editor::Linenoise
+-----------------------
 
 The role that implements the user interface using the [`Linenoise`](https://raku.land/zef:raku-community-modules/Linenoise) module.
 
