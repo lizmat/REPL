@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Change REPL class into a role for optimal flexibility
+    - Document the available roles
 
 0.0.4  2024-11-15T16:17:57+01:00
     - Unbreak support for Readline

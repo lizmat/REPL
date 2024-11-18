@@ -11,7 +11,7 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
 }
 
 # Need to stub first to allow all to see each oher
-class REPL { ... }
+role REPL { ... }
 
 #- Fallback---------------------------------------------------------------------
 role REPL::Fallback {
@@ -157,26 +157,26 @@ CODE
 }
 
 #- REPL ------------------------------------------------------------------------
-class REPL {
+role REPL {
 
     # The low level compiler to be used
-    has Mu   $.compiler      = nqp::getcomp("Raku");
+    has Mu $.compiler = "Raku";
 
     # When values are shown, use this method on the object
-    has Str  $.output-method = %*ENV<RAKU_REPL_OUTPUT_METHOD> // "gist";
+    has Str $.output-method = %*ENV<RAKU_REPL_OUTPUT_METHOD> // "gist";
 
     # The values that were recorded in this session, available inside
     # the REPL as $*0, $*1, etc.
-    has Mu   @.values;
+    has Mu @.values;
 
     # The editor logic being used
-    has Mu   $.editor handles <
+    has Mu $.editor handles <
       add-history ERR OUT read load-history save-history silent teardown VAL
     >;
 
     # The current NQP context that has all of the definitions that were
     # made in this session
-    has Mu   $.context is built(:bind) = nqp::null;
+    has Mu $.context is built(:bind) = nqp::null;
 
     # Whether it is allowed to have code evalled stretching over
     # multiple lines
@@ -189,15 +189,28 @@ class REPL {
     has Bool $!header  is built = True;
 
     # Return state from evaluation
-    has Status $.state     is rw = OK;
+    has Status $!state = OK;
 
     # Any exception that should be reported
-    has Mu     $.exception is rw is built(False);
+    has Mu $.exception is rw is built(False);
 
     # Number of time control-c was seen
     has int $!ctrl-c;
 
+    method new(Mu :$context is copy) {
+        $context := nqp::decont($context);
+        $context := nqp::ctxcaller(nqp::ctx)
+          unless nqp::isconcrete($context);
+
+        self.bless(:$context, |%_)
+    }
+
     method TWEAK() {
+        $!compiler := nqp::getcomp(nqp::decont($!compiler))
+          if nqp::istype($!compiler,Str);
+
+        $!context := nqp::decont($!context);
+
         if $*VM.name eq 'moar' {
             signal(SIGINT).tap: {
                 if $!ctrl-c++ {
@@ -209,6 +222,12 @@ class REPL {
             }
         }
 
+        # Try the given editor
+        sub try-editor($editor) {
+            $!editor = try REPL::{$editor}.new;
+            note "Failed to load support for '$editor'" without $!editor;
+        }
+
         # When running a REPL inside of emacs, the fallback behaviour
         # should be used, as that is provided by emacs itself
         if %*ENV<INSIDE_EMACS> {
@@ -217,8 +236,12 @@ class REPL {
 
         # A specific editor support has been requested
         elsif %*ENV<RAKUDO_LINE_EDITOR> -> $editor {
-            $!editor = try REPL::{$editor}.new if REPL::{$editor}:exists;
-            note "Failed to load support for '$editor'" without $!editor;
+            try-editor($editor);
+        }
+
+        # A string argument was specified
+        elsif nqp::istype($!editor,Str) {
+            try-editor($!editor);
         }
 
         # Still no editor yet, try them in order, any non-standard ones
@@ -230,11 +253,13 @@ class REPL {
         }
     }
 
-    method sink() { .repl-loop with self }
+    method sink() { .run with self }
 
     method interactive_prompt() { "[@!values.elems()] > " }
 
-    method repl-loop(:$no-exit) {
+    method repl-loop(|c) { self.run(|c) }
+
+    method run(:$no-exit) {
         if $!header {
             self.VAL.say: $!compiler.version_string(
               :shorten-versions,
@@ -393,15 +418,19 @@ class REPL {
     # to be needed to get a persistency with regards to scope between
     # lines entered in the REPL.
     method ctxsave(--> Nil) {
-        $*MAIN_CTX := nqp::ctxcaller(nqp::ctx());
+        $*MAIN_CTX := nqp::ctxcaller(nqp::ctx);
         $*CTXSAVE  := 0;
     }
 }
 
-#- repl ------------------------------------------------------------------------
+#- subroutines -----------------------------------------------------------------
 my sub repl(*%_) is export {
     my $context := nqp::ctxcaller(nqp::ctx);
-    REPL.new(:no-exit, :$context :!header, :encoding<utf-8>, |%_)
+    REPL.new(:no-exit, :$context, :!header, |%_)
+}
+
+my sub context(--> Mu) is export {
+    nqp::ctxcaller(nqp::ctx)
 }
 
 # vim: expandtab shiftwidth=4
