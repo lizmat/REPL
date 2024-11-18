@@ -224,6 +224,8 @@ The following goals have been defined so far:
 
   * Provided better documented and better maintainable code that is based on "modern" Raku (done)
 
+  * Provide a way to support specific commands and their actions so that we don't need any REPL helper modules, but provide an API to provide additional functionality.
+
   * Once the API for customization is more stable, replace the REPL code in Rakudo with the code in this module.
 
 AUTHOR

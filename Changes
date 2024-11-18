@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.5  2024-11-18T15:19:17+01:00
     - Change REPL class into a role for optimal flexibility
     - Document the available roles
 
