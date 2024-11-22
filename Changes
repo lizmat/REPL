@@ -1,21 +1,29 @@
 Revision history for REPL
 
 {{$NEXT}}
-    - Move the editor roles to the REPL::Editor:: namespace
+    - Added "repl" CLI for easier access, with capabilities
+      the same as the default Raku REPL, but with additional
+      command capabilities
+    - Added dependencies on the Prompt and Commands modules,
+      allowing for quite a bit of code to be removed as that
+      functionality is now abstracted into those modules
+    - Added "exit", "quit", "help" and "editor" commands
+    - Removed all of the editor roles: they now live in the
+      Prompt module
 
 0.0.5  2024-11-18T15:19:17+01:00
-    - Change REPL class into a role for optimal flexibility
-    - Document the available roles
+    - Changed REPL class into a role for optimal flexibility
+    - Documented the available roles
 
 0.0.4  2024-11-15T16:17:57+01:00
-    - Unbreak support for Readline
+    - Fixed support for Readline
 
 0.0.3  2024-11-14T21:56:24+01:00
-    - Add support for Terminal::LineEditor  module
-    - Add support for RAKUDO_LINE_EDITOR environment variable
+    - Added support for Terminal::LineEditor  module
+    - Added support for RAKUDO_LINE_EDITOR environment variable
 
 0.0.2  2024-11-14T21:08:26+01:00
-    - Add support for Linenoise module
+    - Added support for Linenoise module
 
 0.0.1  2024-11-14T20:34:34+01:00
     - Initial version with support for Readline module

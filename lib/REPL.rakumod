@@ -1,159 +1,14 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
+use Commands:ver<0.0.2+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.3+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
-my constant @predefined = <Readline LineEditor Linenoise Fallback>;
 
 PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
     note "Uncaught exception on thread $*THREAD.id():\n"
       ~ $exception.gist.indent(4);
-}
-
-# Need to stub first to allow all to see each oher
-role REPL { ... }
-
-#- Fallback---------------------------------------------------------------------
-role REPL::Editor::Fallback {
-    has $!OUT-pos;
-    has $!ERR-pos;
-    has $.history;
-
-    method read($prompt) { prompt $prompt }
-    method teardown() { self.save-history }
-    method VAL() { $*OUT }
-    method OUT() { $!OUT-pos = $*OUT.tell; $*OUT }
-    method ERR() { $!ERR-pos = $*ERR.tell; $*ERR }
-    method silent() {
-        $!OUT-pos == $*OUT.tell && $!ERR-pos == $*ERR.tell
-    }
-    method history() {
-        without $!history {
-            if %*ENV<RAKUDO_HIST> -> $history {
-                $!history := $history.IO;
-            }
-            else {
-                my $dir   := $*HOME || $*TMPDIR;
-                $!history := $dir.add('.raku/rakudo-history');
-            }
-        }
-
-        unless $!history.e {
-            CATCH {
-                note "Could not set up history file '$!history':\n  $_.message()";
-                .resume;
-            }
-            $!history.spurt;
-        }
-
-        $!history
-    }
-    method load-history() { }
-    method add-history($) { }
-    method save-history() { }
-}
-
-#- Readline --------------------------------------------------------------------
-role REPL::Editor::Readline does REPL::Editor::Fallback {
-    has $!Readline is built;
-
-    method new() {
-        with try "use Readline; Readline.new".EVAL {
-            self.bless(:Readline($_))
-        }
-        else {
-            Nil
-        }
-    }
-
-    method read($prompt) {
-        $!Readline.readline($prompt)
-    }
-
-    method add-history($code --> Nil) {
-        $!Readline.add-history($code);
-    }
-
-    method load-history() {
-        $!Readline.read-history($.history.absolute);
-    }
-
-    method save-history() {
-        $!Readline.write-history($.history.absolute);
-    }
-}
-
-#- Linenoise -------------------------------------------------------------------
-
-role REPL::Editor::Linenoise does REPL::Editor::Fallback {
-    has &!linenoise            is built;
-    has &!linenoiseHistoryAdd  is built;
-    has &!linenoiseHistoryLoad is built;
-    has &!linenoiseHistorySave is built;
-
-    method new() {
-        with try "use Linenoise; Linenoise.WHO".EVAL -> %WHO {
-            self.bless(
-              linenoise            => %WHO<&linenoise>,
-              linenoiseHistoryAdd  => %WHO<&linenoiseHistoryAdd>,
-              linenoiseHistoryLoad => %WHO<&linenoiseHistoryLoad>,
-              linenoiseHistorySave => %WHO<&linenoiseHistorySave>,
-            );
-        }
-        else {
-            Nil
-        }
-    }
-
-    method read($prompt) {
-        &!linenoise($prompt)
-    }
-
-    method add-history($code --> Nil) {
-        &!linenoiseHistoryAdd($code);
-    }
-
-    method load-history() {
-        &!linenoiseHistoryLoad($.history.absolute);
-    }
-
-    method save-history() {
-        &!linenoiseHistorySave($.history.absolute);
-    }
-}
-
-#- Terminal::LineEditor --------------------------------------------------------
-role REPL::Editor::LineEditor does REPL::Editor::Fallback {
-    has $!LineEditor is built;
-
-    method new() {
-        with try Q:to/CODE/.EVAL {
-use Terminal::LineEditor;
-use Terminal::LineEditor::RawTerminalInput;
-Terminal::LineEditor::CLIInput.new
-CODE
-            self.bless(:LineEditor($_))
-        }
-        else {
-            Nil
-        }
-    }
-
-    method read($prompt) {
-        $!LineEditor.prompt($prompt.chop)
-    }
-
-    method add-history($code --> Nil) {
-        $!LineEditor.add-history($code);
-    }
-
-    method load-history() {
-        $!LineEditor.load-history($.history);
-    }
-
-    method save-history() {
-        $!LineEditor.save-history($.history);
-    }
 }
 
 #- REPL ------------------------------------------------------------------------
@@ -169,10 +24,15 @@ role REPL {
     # the REPL as $*0, $*1, etc.
     has Mu @.values;
 
-    # The editor logic being used
-    has Mu $.editor handles <
-      add-history ERR OUT read load-history save-history silent teardown VAL
+    # The prompt logic being used
+    has Mu $.prompt handles <
+      add-history editor-name read readline load-history save-history
     >;
+
+    # Output handles
+    has $.out;
+    has $.err;
+    has $.val;
 
     # The current NQP context that has all of the definitions that were
     # made in this session
@@ -183,10 +43,10 @@ role REPL {
     has Bool $.multi-line-ok = !%*ENV<RAKUDO_DISABLE_MULTILINE>;
 
     # On Windows some things need to be different, this allows an easy check
-    has Bool $.is-win  is built(:bind) = $*DISTRO.is-win;
+    has Bool $.is-win is built(:bind) = $*DISTRO.is-win;
 
     # Flag whether the extended header should be shown
-    has Bool $!header  is built = True;
+    has Bool $!header is built = True;
 
     # Return state from evaluation
     has Status $!state = OK;
@@ -205,7 +65,7 @@ role REPL {
         self.bless(:$context, |%_)
     }
 
-    method TWEAK() {
+    method TWEAK(:$editor) {
         $!compiler := nqp::getcomp(nqp::decont($!compiler))
           if nqp::istype($!compiler,Str);
 
@@ -222,46 +82,47 @@ role REPL {
             }
         }
 
-        # Try the given editor
-        sub try-editor($editor) {
-            $!editor = try REPL::Editor::{$editor}.new;
-            note "Failed to load support for '$editor'" without $!editor;
-        }
+        # Make a prompt object if we don't have one yet
+        $!prompt := Prompt.new($editor) without $!prompt;
 
-        # When running a REPL inside of emacs, the fallback behaviour
-        # should be used, as that is provided by emacs itself
-        if %*ENV<INSIDE_EMACS> {
-            $!editor = REPL::Editor::Fallback.new;
-        }
-
-        # A specific editor support has been requested
-        elsif %*ENV<RAKUDO_LINE_EDITOR> -> $editor {
-            try-editor($editor);
-        }
-
-        # A string argument was specified
-        elsif nqp::istype($!editor,Str) {
-            try-editor($!editor);
-        }
-
-        # Still no editor yet, try them in order, any non-standard ones
-        # first, in alphabetical order
-        without $!editor {
-            for |(REPL::Editor::.keys (-) @predefined).keys.sort(*.fc), |@predefined {
-                last if $!editor = try REPL::Editor::{$_}.new;
-            }
-        }
+        # Make sure we have a history file
+        $!prompt.history(self.rakudo-history(:create))
+          without $!prompt.history;
     }
+
+    method teardown() { self.save-history }
+    method val() { $!val // $*OUT }
+    method out() { $!out }
+    method err() { $!err }
 
     method sink() { .run with self }
 
     method interactive_prompt() { "[@!values.elems()] > " }
 
+    method rakudo-history(:$create) {
+        my $path := do if %*ENV<RAKUDO_HIST> -> $history {
+            $history.IO
+        }
+        else {
+            ($*HOME || $*TMPDIR).add('.raku/rakudo-history')
+        }
+
+        if $create && !$path.e {
+            CATCH {
+                note "Could not set up history file '$path':\n  $_.message()";
+                .resume;
+            }
+            $path.spurt;
+        }
+
+        $path
+    }
+
     method repl-loop(|c) { self.run(|c) }
 
     method run(:$no-exit) {
         if $!header {
-            self.VAL.say: $!compiler.version_string(
+            self.val.say: $!compiler.version_string(
               :shorten-versions,
               :no-unicode($!is-win)
             ) ~ "\n";
@@ -282,78 +143,77 @@ role REPL {
         }
         reset;
 
-        # Some initializations
-        self.load-history;
-        my $last-code = '';
+        my $commands := Commands.new(
+          :$!out, :$!err,
+          default => {
+
+              # Evaluate the code
+              my int $out-tell = $*OUT.tell;
+              my int $err-tell = $*ERR.tell;
+              my $value := self.eval($*INPUT, |%_);
+
+              # Handle the special cases
+              if $!state == MORE-INPUT {
+                  $prompt = '* ';
+                  next;
+              }
+              elsif $!state == CONTROL {
+                  say "Control flow commands not allowed in toplevel";
+                  reset;
+                  next;
+              }
+
+              # Print an exception if one had occured
+              if $!exception.DEFINITE {
+                  note $!exception.message.chomp;
+                  $!exception = Nil;
+              }
+
+              # Print the result if:
+              # - there wasn't some other output
+              # - the result is an *unhandled* Failure
+              elsif $*OUT.tell == $out-tell && $*ERR.tell == $err-tell
+                or nqp::istype($value,Failure) && !$value.handled {
+                  my $method := $!output-method;
+                  CATCH {
+                      note ."$method"();
+                      .resume
+                  }
+
+                  self.val.say: (nqp::can($value,$method)
+                    ?? $value."$method"()
+                    !! "(low-level object `$value.^name()`)"
+                  );
+
+                  @!values.push: $value;
+              }
+          },
+          commands => (
+            exit   => { last },
+            quit   => "exit",
+            editor => { say "Using the $!prompt.editor-name() editor" },
+            help   => { say "Available commands: $commands.primaries.skip()" },
+            ""     => { next },
+          ),
+        );
 
         # Make sure we can reference previous values from within the
         # REPL as $*0, $*1 etc
         my @*_ := @!values;
 
-        REPL: loop {
+        loop {
             # Why doesn't the catch-default in eval catch all?
             CATCH {
                 default { say $_; reset }
             }
 
             # Fetch the code
-            my $newcode := self.read($prompt);
-            last without $newcode;  # undefined $newcode implies ^D or similar
-            last if $no-exit and $newcode eq 'exit';
+            last without my $command := $!prompt.readline($prompt);
 
             $!ctrl-c = 0;
-            $code = $code ~ $newcode ~ "\n";
-            next if $code ~~ /^ <.ws> $/;  # nothing to work with
+            $code    = $code ~ $command ~ "\n";
 
-            # Evaluate the code
-            my $value := do {
-                temp $*OUT = self.OUT;
-                temp $*ERR = self.ERR;
-                self.eval($code, |%_)
-            }
-
-            # Handle the special cases
-            if $!state == MORE-INPUT {
-                $prompt = '* ';
-                next;
-            }
-            elsif $!state == CONTROL {
-                say "Control flow commands not allowed in toplevel";
-                reset;
-                next;
-            }
-
-            # Print an exception if one had occured
-            if $!exception.DEFINITE {
-                self.ERR.say: $!exception.message;
-                $!exception = Nil;
-            }
-
-            # Print the result if:
-            # - there wasn't some other output
-            # - the result is an *unhandled* Failure
-            elsif self.silent
-              or nqp::istype($value,Failure) && not $value.handled {
-                my $method := $!output-method;
-                CATCH {
-                    self.ERR.say: ."$method"();
-                    .resume
-                }
-
-                self.VAL.say: (nqp::can($value,$method)
-                  ?? $value."$method"()
-                  !! "(low-level object `$value.^name()`)"
-                );
-
-                @!values.push: $value;
-            }
-
-            # Add to history if we didn't repeat ourselves
-            $code .= trim;
-            if $code ne $last-code {
-                self.add-history($code);
-                $last-code = $code;
-            }
+            $commands.process($code.chomp);
             reset;
         }
 
