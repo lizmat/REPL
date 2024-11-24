@@ -2,6 +2,12 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.7  2024-11-24T14:29:39+01:00
+    - Bumped dependency on Prompt to get completions support
+    - Added :completions optional named argument and method
+    - Added support for Raku completions by default
+    - Added .supports-completions method
+
 0.0.6  2024-11-22T20:00:21+01:00
     - Added "repl" CLI for easier access, with capabilities
       the same as the default Raku REPL, but with additional

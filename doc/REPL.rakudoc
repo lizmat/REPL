@@ -78,6 +78,7 @@ my $repl = REPL.new:
   :header,
   :multi-line-ok,
   :is-win($*DISTRO.is-win),
+  :@completions,
   :compiler<Raku>,
 ;
 
@@ -158,6 +159,13 @@ Windows semantics.  Defaults to C<$*DISTRO.is-win>.
 
 Used value available with the C<.is-win> method.
 
+=head3 :completions
+
+A C<List> of strings to be used tab-completions.  If none are specified,
+then a default Raku set of completions will be used.
+
+Used value available with the C<.completions> method.
+
 =head3 :compiler
 
 String.  The HLL compiler to be used.  This defaults to "Raku", which
@@ -200,6 +208,11 @@ The L<C<Prompt>|https://raku.land/zef:lizmat/Prompt> object to be
 used when obtaining input from the user.  Also handles the C<read>,
 C<readline>, C<load-history>, C<add-history>, C<save-history> and
 C<editor-name> methods.
+
+=head2 supports-completions
+
+Returns a C<Bool> indicating whether the selected editor supports
+completions.
 
 =head2 teardown
 

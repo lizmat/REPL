@@ -1,4 +1,6 @@
 use REPL;
-repl :header
+
+# run with a clean scope
+{ repl }
 
 # vim: expandtab shiftwidth=4

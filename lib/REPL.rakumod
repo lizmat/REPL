@@ -1,10 +1,29 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
 use Commands:ver<0.0.2+>:auth<zef:lizmat>;
-use Prompt:ver<0.0.3+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.4+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
+
+# Is word long enough?
+sub long-enough($_) { .chars > 1 ?? $_ !! Empty }
+
+# Is a word ok to be included in completions
+sub ok-for-completion($_) {
+    .contains(/ <.lower> /)
+      ?? .starts-with('&')
+        ?? .contains("fix:" | "mod:")
+          ?? Empty            # don't bother with operators and traits
+          !! long-enough(.substr(1))
+        !! .contains(/ \W /)
+          ?? Empty            # don't bother with non-sub specials
+          !! long-enough($_)
+      !! Empty                # don't bother will all uppercase
+}
+
+# Set core completions
+my constant @core-completions = CORE::.keys.map(&ok-for-completion).sort;
 
 PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
     note "Uncaught exception on thread $*THREAD.id():\n"
@@ -26,7 +45,8 @@ role REPL {
 
     # The prompt logic being used
     has Mu $.prompt handles <
-      add-history editor-name read readline load-history save-history
+      add-history completions editor-name read readline load-history
+      save-history supports-completions
     >;
 
     # Output handles
@@ -57,7 +77,7 @@ role REPL {
     # Number of time control-c was seen
     has int $!ctrl-c;
 
-    method new(Mu :$context is copy) {
+    method new(Mu :$context is copy, :$no-context) {
         $context := nqp::decont($context);
         $context := nqp::ctxcaller(nqp::ctx)
           unless nqp::isconcrete($context);
@@ -77,7 +97,7 @@ role REPL {
                     self.teardown;
                     exit;
                 }
-                self.ERR.say: "Pressed CTRL-c, press CTRL-c again to exit";
+                self.err.say: "Pressed CTRL-c, press CTRL-c again to exit";
                 print self.interactive_prompt;
             }
         }
@@ -92,8 +112,8 @@ role REPL {
 
     method teardown() { self.save-history }
     method val() { $!val // $*OUT }
-    method out() { $!out }
-    method err() { $!err }
+    method out() { $!out // $*OUT }
+    method err() { $!err // $*ERR }
 
     method sink() { .run with self }
 
@@ -197,6 +217,10 @@ role REPL {
           ),
         );
 
+        if self.supports-completions && !self.completions {
+            self.completions(flat @core-completions, self.context-completions);
+        }
+
         # Make sure we can reference previous values from within the
         # REPL as $*0, $*1 etc
         my @*_ := @!values;
@@ -282,6 +306,22 @@ role REPL {
     method ctxsave(--> Nil) {
         $*MAIN_CTX := nqp::ctxcaller(nqp::ctx);
         $*CTXSAVE  := 0;
+    }
+
+    # Provide completions for the current context
+    method context-completions() {
+        my $iterator := nqp::iterator(nqp::ctxlexpad($!context));
+
+        my $buffer := nqp::create(IterationBuffer);
+        nqp::while(
+          $iterator,
+          nqp::push($buffer, nqp::iterkey_s(nqp::shift($iterator)))
+        );
+
+        my $PACKAGE := $!compiler.eval('$?PACKAGE', :outer_ctx($!context));
+        $PACKAGE.WHO.keys.map(&ok-for-completion).iterator.push-all($buffer);
+
+        $buffer.Slip
     }
 }
 

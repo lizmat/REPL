@@ -70,6 +70,7 @@ my $repl = REPL.new:
   :header,
   :multi-line-ok,
   :is-win($*DISTRO.is-win),
+  :@completions,
   :compiler<Raku>,
 ;
 ```
@@ -124,6 +125,12 @@ Boolean. Indicate whether certain OS dependent checks should assume Windows sema
 
 Used value available with the `.is-win` method.
 
+### :completions
+
+A `List` of strings to be used tab-completions. If none are specified, then a default Raku set of completions will be used.
+
+Used value available with the `.completions` method.
+
 ### :compiler
 
 String. The HLL compiler to be used. This defaults to "Raku", which is the only compiler supported at this time.
@@ -159,6 +166,11 @@ prompt
 ------
 
 The [`Prompt`](https://raku.land/zef:lizmat/Prompt) object to be used when obtaining input from the user. Also handles the `read`, `readline`, `load-history`, `add-history`, `save-history` and `editor-name` methods.
+
+supports-completions
+--------------------
+
+Returns a `Bool` indicating whether the selected editor supports completions.
 
 teardown
 --------
