@@ -1,7 +1,7 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
 use Commands:ver<0.0.2+>:auth<zef:lizmat>;
-use Prompt:ver<0.0.4+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.5+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
@@ -30,6 +30,26 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
       ~ $exception.gist.indent(4);
 }
 
+#- Unicode names completions ---------------------------------------------------
+
+my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
+
+my sub uniname-word-completions($line, $pos) {
+    with $uniname-words && $line.rindex('\\c[') -> $start is copy {
+        $start += 3;
+        without $line.index(']', $start) {
+            if $line.chars > $start {
+                with $uniname-words($line.substr($start).lc) {
+                    my $prefix := $line.substr(0, $start);
+                    .map: {
+                        qq/$prefix$_.uniname()]/
+                    }
+                }
+            }
+        }
+    }
+}
+
 #- REPL ------------------------------------------------------------------------
 role REPL {
 
@@ -45,8 +65,8 @@ role REPL {
 
     # The prompt logic being used
     has Mu $.prompt handles <
-      add-history completions editor-name read readline load-history
-      save-history supports-completions
+      additional-completions add-history completions editor-name read
+      readline load-history save-history supports-completions
     >;
 
     # Output handles
@@ -103,7 +123,10 @@ role REPL {
         }
 
         # Make a prompt object if we don't have one yet
-        $!prompt := Prompt.new($editor) without $!prompt;
+        $!prompt := Prompt.new(
+          $editor,
+          :additional-completions(&uniname-word-completions)
+        ) without $!prompt;
 
         # Make sure we have a history file
         $!prompt.history(self.rakudo-history(:create))
@@ -218,7 +241,7 @@ role REPL {
         );
 
         if self.supports-completions && !self.completions {
-            self.completions(flat @core-completions, self.context-completions);
+            self.completions(@core-completions, self.context-completions);
         }
 
         # Make sure we can reference previous values from within the

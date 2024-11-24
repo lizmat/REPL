@@ -2,6 +2,12 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.8  2024-11-24T20:28:21+01:00
+    - Bumped dependency on Prompt to get support for
+      additional completions
+    - Added support for \c[ uniname completions if the
+      "uniname-words" module is installed
+
 0.0.7  2024-11-24T14:29:39+01:00
     - Bumped dependency on Prompt to get completions support
     - Added :completions optional named argument and method

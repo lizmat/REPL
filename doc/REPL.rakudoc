@@ -247,6 +247,17 @@ Shows a list of available commands.  Can be shortened all the way to "h".
 
 Leaves the REPL.  Can be shortened all the way to "q".
 
+=head1 TAB COMPLETIONS
+
+If the C<suppors-completions> method returns C<True>, then tab-completion
+will provide:
+=item all relevant items from the CORE:: namespace
+=item any relevant items from the direct context
+
+Additionally, if the L<C<uniname-words>|https://raku.land/zef:lizmat/uniname-words>
+module is installed, any unclosed L<B<\\c[>|https://docs.raku.org/syntax/%5Cc>
+sequence will tab-complete on the names of Unicode code-points.
+
 =head1 GOALS
 
 The following goals have been defined so far:
