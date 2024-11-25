@@ -1,6 +1,9 @@
 use REPL;
 
+@*ARGS.push: "--header" unless @*ARGS.first(*.ends-with("header"));
+@*ARGS = @*ARGS.grep(*.starts-with(<--editor --output-method --header>.any));
+
 # run with a clean scope
-{ repl :header }
+my constant &MAIN = &repl;
 
 # vim: expandtab shiftwidth=4

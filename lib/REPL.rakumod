@@ -282,6 +282,15 @@ role REPL {
             quit   => "exit",
             editor => { say "Using the $!prompt.editor-name() editor" },
             help   => { say "Available commands: $commands.primaries.skip()" },
+            output => {
+                if .[1] -> $method {
+                    $!output-method := $method;
+                    say "Output method is now set to '$method'";
+                }
+                else {
+                    say "Current output method is '$!output-method'";
+                }
+            },
             ""     => { next },
           ),
         );

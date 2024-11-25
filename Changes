@@ -1,6 +1,10 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Added support for --editor, --output-method and --header
+      command line arguments
+    - Added interactive command "output" to see/ set the output
+      method while in the REPL
 
 0.0.10  2024-11-25T15:22:36+01:00
     - Added support and documentation of :additional-completions

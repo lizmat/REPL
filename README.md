@@ -20,6 +20,25 @@ DESCRIPTION
 
 The REPL module is a re-imagining of the REPL (Read, Evaluate, Print Loop) functionality as offered by Rakudo before the 2024.11 release. It provides both a programmable interface, as well as a ready made `"repl"` CLI.
 
+COMMAND LINE INTERFACE
+======================
+
+    # Simplest invocation
+    $ repl
+
+    # Invocation with some custom settings
+    $ repl --editor=Linenoise --output-method=raku --/header
+
+The REPL command-line interface can be invoked with named arguments that have the same name as the named arguments to the `REPL.new` call. They are:
+
+  * --editor - the editor to use (default: Any)
+
+  * --output-method - the output method to be used (default: gist)
+
+  * --header - whether to show the full header (default: yes)
+
+Any other command-line arguments will be ignored.
+
 SUBROUTINES
 ===========
 
@@ -230,6 +249,11 @@ help
 
 Shows a list of available commands. Can be shortened all the way to "h".
 
+output [method]
+---------------
+
+Shows the current output method. If a second argument is specified, it indicates the name of the output method to be used from now on. Typical values are "raku", "Str", "gist". Can be shortened all the way to "o".
+
 quit
 ----
 
@@ -265,7 +289,7 @@ The following goals have been defined so far:
 
   * Provide an actual REPL class that can be easily configured and provide documentation (done)
 
-  * Attempt to fix many outstanding bugs about the Rakudo REPL.
+  * Attempt to fix many outstanding bugs about the Rakudo REPL (done all that were fixable at this level)
 
   * Provided better documented and better maintainable code that is based on "modern" Raku (done)
 
