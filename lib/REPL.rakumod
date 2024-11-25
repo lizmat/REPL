@@ -1,7 +1,7 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
 use Commands:ver<0.0.2+>:auth<zef:lizmat>;
-use Prompt:ver<0.0.5+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.6+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;

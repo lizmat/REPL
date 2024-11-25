@@ -1,6 +1,10 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.11  2024-11-25T20:37:00+01:00
+    - Bumped dependency on Prompt to get more robust handling
+      of faulty :editor input
     - Added support for --editor, --output-method and --header
       command line arguments
     - Added interactive command "output" to see/ set the output
