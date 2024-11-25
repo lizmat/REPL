@@ -47,6 +47,20 @@ $repl.run;
 
 It is also possible to save the `REPL` object at one place in the code, and actually run the REPL at a later time in another scope.
 
+standard-completions
+--------------------
+
+The `standard-completions` subroutine provides the standard completion logic if no `:additional-completions` argument has been specified with either `REPL.new` or the `repl` subroutine.
+
+It is provided to allow it to be added with the <:additional-completions> argument, and to allow testing of the standard completion logic.
+
+uniname-words
+-------------
+
+The `uniname-words` subroutine provides the same functionality as the `uniname-words` subroutine provided by the [`uniname-words`](https://raku.land/zef:lizmat/uniname-words) distribution **if** that distribution is installed.
+
+Otherwise it will always return `Nil`.
+
 RUNNING A REPL
 --------------
 
@@ -71,6 +85,7 @@ my $repl = REPL.new:
   :multi-line-ok,
   :is-win($*DISTRO.is-win),
   :@completions,
+  :@additional-completions,
   :compiler<Raku>,
 ;
 ```
@@ -130,6 +145,19 @@ Used value available with the `.is-win` method.
 A `List` of strings to be used tab-completions. If none are specified, then a default Raku set of completions will be used.
 
 Used value available with the `.completions` method.
+
+### :additional-completions
+
+    # completion that uppercases whole line if ended with a !
+    sub shout($line, $pos) {
+        ($line.chop.uc,) if $pos == $line.chars && $line.ends-with("!")
+    }
+
+    my $repl = REPL.new(:additional-completions(&shout));
+
+A `List` of `Callables` to be called to produce tab-completions. If none are specified, the `standard-completions` will be assumed.
+
+Each `Callable` is expected to accept two positional arguments: the line that has been entered so far, and the position of the cursor. It is expected to return a (potentially) empty `List` with the new state of the line (so including everything before and after the completion).
 
 ### :compiler
 
@@ -210,11 +238,17 @@ Leaves the REPL. Can be shortened all the way to "q".
 TAB COMPLETIONS
 ===============
 
-If the `supports-completions` method returns `True`, then tab-completion will provide:
+If the `supports-completions` method returns `True`, the standard tab-completion logic will provide:
 
   * all relevant items from the CORE:: namespace
 
   * any relevant items from the direct context
+
+  * \^123 will tab-complete to ¹²³
+
+  * \_123 will tab-complete to ₁₂₃
+
+  * foo! will tab-complete to FOO, foo, Foo
 
 Additionally, if the [`uniname-words`](https://raku.land/zef:lizmat/uniname-words) module is installed:
 

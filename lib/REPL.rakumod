@@ -30,30 +30,31 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
       ~ $exception.gist.indent(4);
 }
 
-#- Unicode names completions ---------------------------------------------------
+#- standard completions --------------------------------------------------------
 
 my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
+my sub uniname-words(|c) is export {
+    $uniname-words ?? $uniname-words(|c) !! Nil
+}
 
-# Complete \c[word sequences with full unicode name
-my sub uniname-word-completions($line, $pos) {
+# Set up standard completions
+my sub standard-completions($line, $pos is copy = $line.chars) is export {
+
+    # Check for \c[word ... ] completions
     with $uniname-words && $line.rindex('\\c[') -> $start is copy {
         $start += 3;
         without $line.index(']', $start) {
             if $line.chars > $start {
                 with $uniname-words($line.substr($start).lc) {
                     my $prefix := $line.substr(0, $start);
-                    .map: {
-                        qq/$prefix$_.uniname()]/
-                    }
+                    .map({ qq/$prefix$_.uniname()]/ }).sort
                 }
             }
         }
     }
-}
 
-# Complete \word sequences with the actual codepoints
-my sub uniname-chr-completions($line, $pos) {
-    with $line.rindex('\\') -> $start is copy {
+    # Check for \^123, \_123, \word completions
+    orwith $line.rindex('\\') -> $start is copy {
         without $line.index(' ', $start) {
             if $line.chars > $start {
                 my $word   := $line.substr($start+1).lc;
@@ -68,11 +69,25 @@ my sub uniname-chr-completions($line, $pos) {
                 }
                 orwith $uniname-words
                   && $uniname-words($line.substr($start+1).lc) {
-                    .map: {
-                        qq/$prefix$_.chr()/
-                    }
+                    .sort(*.uniname).map({ qq/$prefix$_.chr()/ })
                 }
             }
+        }
+    }
+
+    # Check for word! completions
+    elsif $pos && $line.substr-eq('!', --$pos) {
+        with $line.rindex(' ', $pos) -> $index is copy {
+            my $prefix := $line.substr(0, ++$index);
+            my $target := $line.substr($index, $pos - $index);
+            ($prefix ~ $target.uc,
+             $prefix ~ $target.lc,
+             $prefix ~ $target.tclc
+            )
+        }
+        else {
+            my $target := $line.substr(0,$pos);
+            ($target.uc, $target.lc, $target.tclc)
         }
     }
 }
@@ -132,7 +147,7 @@ role REPL {
         self.bless(:$context, |%_)
     }
 
-    method TWEAK(:$editor) {
+    method TWEAK(:$editor, :@additional-completions) {
         $!compiler := nqp::getcomp(nqp::decont($!compiler))
           if nqp::istype($!compiler,Str);
 
@@ -149,12 +164,14 @@ role REPL {
             }
         }
 
+        # Set up standard additional completions if none so far
+        @additional-completions = &standard-completions
+          unless @additional-completions;
+
         # Make a prompt object if we don't have one yet
         $!prompt := Prompt.new(
           $editor,
-          :additional-completions(
-            &uniname-word-completions, &uniname-chr-completions
-          )
+          :@additional-completions
         ) without $!prompt;
 
         # Make sure we have a history file

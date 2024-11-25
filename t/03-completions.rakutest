@@ -1,0 +1,35 @@
+use Test;
+use REPL;
+
+plan 7;
+
+my constant &sc = &standard-completions;
+
+is-deeply sc("\\^123"), ("¹²³",), "superscripting integers";
+is-deeply sc("\\_123"), ("₁₂₃",), "subscripting integers";
+
+is-deeply sc("shout!"), 
+  ("SHOUT","shout","Shout"),
+  "shouting whole line";
+
+is-deeply sc("foo bar!"),
+  ("foo BAR","foo bar","foo Bar"),
+  "shouting last word";
+
+is-deeply sc("foo bar! baz", 8),
+  ("foo BAR","foo bar","foo Bar"),
+  "shouting middle word";
+
+if uniname-words() {
+    is-deeply sc("\\c[LOVE"),
+      ("\\c[I LOVE YOU HAND SIGN]", "\\c[LOVE HOTEL]", "\\c[LOVE LETTER]"),
+      "testing \\c[word]";
+    is-deeply sc("\\LOVE"),
+      ("🤟", "🏩", "💌"),
+      "testing \\word";
+}
+else {
+    skip-rest "uniname-words module not installed";
+}
+
+# vim: expandtab shiftwidth=4
