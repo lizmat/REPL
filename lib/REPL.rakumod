@@ -34,6 +34,7 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
 
 my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
 
+# Complete \c[word sequences with full unicode name
 my sub uniname-word-completions($line, $pos) {
     with $uniname-words && $line.rindex('\\c[') -> $start is copy {
         $start += 3;
@@ -43,6 +44,32 @@ my sub uniname-word-completions($line, $pos) {
                     my $prefix := $line.substr(0, $start);
                     .map: {
                         qq/$prefix$_.uniname()]/
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Complete \word sequences with the actual codepoints
+my sub uniname-chr-completions($line, $pos) {
+    with $line.rindex('\\') -> $start is copy {
+        without $line.index(' ', $start) {
+            if $line.chars > $start {
+                my $word   := $line.substr($start+1).lc;
+                my $prefix := $line.substr(0, $start);
+                if $word.starts-with('^')
+                  && try $word.substr(1).Int -> $number {
+                    ($prefix ~ $number.Str(:superscript),)
+                }
+                elsif $word.starts-with('_')
+                  && try $word.substr(1).Int -> $number {
+                    ($prefix ~ $number.Str(:subscript),)
+                }
+                orwith $uniname-words
+                  && $uniname-words($line.substr($start+1).lc) {
+                    .map: {
+                        qq/$prefix$_.chr()/
                     }
                 }
             }
@@ -125,7 +152,9 @@ role REPL {
         # Make a prompt object if we don't have one yet
         $!prompt := Prompt.new(
           $editor,
-          :additional-completions(&uniname-word-completions)
+          :additional-completions(
+            &uniname-word-completions, &uniname-chr-completions
+          )
         ) without $!prompt;
 
         # Make sure we have a history file

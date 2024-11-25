@@ -249,14 +249,16 @@ Leaves the REPL.  Can be shortened all the way to "q".
 
 =head1 TAB COMPLETIONS
 
-If the C<suppors-completions> method returns C<True>, then tab-completion
+If the C<supports-completions> method returns C<True>, then tab-completion
 will provide:
 =item all relevant items from the CORE:: namespace
 =item any relevant items from the direct context
 
 Additionally, if the L<C<uniname-words>|https://raku.land/zef:lizmat/uniname-words>
-module is installed, any unclosed L<B<\\c[>|https://docs.raku.org/syntax/%5Cc>
-sequence will tab-complete on the names of Unicode code-points.
+module is installed:
+=item any unclosed L<B<\\c[>|https://docs.raku.org/syntax/%5Cc>
+sequence will tab-complete on the names of Unicode code-points
+=item any B<\word> will tab-complete to the actual codepoints
 
 =head1 GOALS
 

@@ -210,13 +210,17 @@ Leaves the REPL. Can be shortened all the way to "q".
 TAB COMPLETIONS
 ===============
 
-If the `suppors-completions` method returns `True`, then tab-completion will provide:
+If the `supports-completions` method returns `True`, then tab-completion will provide:
 
   * all relevant items from the CORE:: namespace
 
   * any relevant items from the direct context
 
-Additionally, if the [`uniname-words`](https://raku.land/zef:lizmat/uniname-words) module is installed, any unclosed [**\\c[**](https://docs.raku.org/syntax/%5Cc) sequence will tab-complete on the names of Unicode code-points.
+Additionally, if the [`uniname-words`](https://raku.land/zef:lizmat/uniname-words) module is installed:
+
+  * any unclosed [**\\c[**](https://docs.raku.org/syntax/%5Cc) sequence will tab-complete on the names of Unicode code-points
+
+  * any **\word** will tab-complete to the actual codepoints
 
 GOALS
 =====
