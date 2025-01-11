@@ -1,3 +1,4 @@
 .precomp/
 /REPL-*
 /releases/
+*.rakucov
