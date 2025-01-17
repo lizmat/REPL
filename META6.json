@@ -7,7 +7,7 @@
   ],
   "depends": [
     "Commands:ver<0.0.2+>:auth<zef:lizmat>",
-    "Prompt:ver<0.0.6+>:auth<zef:lizmat>"
+    "Prompt:ver<0.0.8+>:auth<zef:lizmat>"
   ],
   "description": "A more easily configurable REPL",
   "license": "Artistic-2.0",

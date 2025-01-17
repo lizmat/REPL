@@ -280,6 +280,31 @@ Additionally, if the [`uniname-words`](https://raku.land/zef:lizmat/uniname-word
 
   * any **\word** will tab-complete to the actual codepoints
 
+ENVIRONMENT VARIABLES
+=====================
+
+These environment variables will override default settings.
+
+RAKUDO_REPL_PROMPT
+------------------
+
+The prompt shown to the user. May contain escape sequences as supported by the `Prompt.expand` method.
+
+RAKUDO_HIST
+-----------
+
+Path where the history file is / should be stored.
+
+RAKU_REPL_OUTPUT_METHOD
+-----------------------
+
+The name of the method with which to show results to the user.
+
+RAKUDO_DISABLE_MULTILINE
+------------------------
+
+Whether multi-line evaluations should be disabled or not.
+
 GOALS
 =====
 
@@ -309,7 +334,7 @@ If you like this module, or what I'm doing more generally, committing to a [smal
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2024 Elizabeth Mattijsen
+Copyright 2024, 2025 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

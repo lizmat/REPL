@@ -332,6 +332,27 @@ module is installed:
 sequence will tab-complete on the names of Unicode code-points
 =item any B<\word> will tab-complete to the actual codepoints
 
+=head1 ENVIRONMENT VARIABLES
+
+These environment variables will override default settings.
+
+=head2 RAKUDO_REPL_PROMPT
+
+The prompt shown to the user.  May contain escape sequences as supported
+by the C<Prompt.expand> method.
+
+=head2 RAKUDO_HIST
+
+Path where the history file is / should be stored.
+
+=head2 RAKU_REPL_OUTPUT_METHOD
+
+The name of the method with which to show results to the user.
+
+=head2 RAKUDO_DISABLE_MULTILINE
+
+Whether multi-line evaluations should be disabled or not.
+
 =head1 GOALS
 
 The following goals have been defined so far:
@@ -363,7 +384,7 @@ deal to me!
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2024 Elizabeth Mattijsen
+Copyright 2024, 2025 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

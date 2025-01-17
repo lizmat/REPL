@@ -1,7 +1,7 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
 use Commands:ver<0.0.2+>:auth<zef:lizmat>;
-use Prompt:ver<0.0.6+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.8+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
@@ -186,7 +186,9 @@ role REPL {
 
     method sink() { .run with self }
 
-    method interactive_prompt() { "[@!values.elems()] > " }
+    method interactive_prompt() {
+        %*ENV<RAKUDO_REPL_PROMPT> // '[\i] > '
+    }
 
     method rakudo-history(:$create) {
         my $path := do if %*ENV<RAKUDO_HIST> -> $history {
@@ -310,7 +312,9 @@ role REPL {
             }
 
             # Fetch the code
-            last without my $command := $!prompt.readline($prompt);
+            my $*INDEX := @!values.elems;
+            last
+              without my $command := $!prompt.readline(Prompt.expand($prompt));
 
             $!ctrl-c = 0;
             $code    = $code ~ $command ~ "\n";
