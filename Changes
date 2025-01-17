@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.12  2025-01-17T20:02:21+01:00
     - Bump dependency on Prompt to get more prompt escape
       sequence handling
     - Add support for RAKUDO_REPL_PROMPT environment variable

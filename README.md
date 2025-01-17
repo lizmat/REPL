@@ -288,7 +288,7 @@ These environment variables will override default settings.
 RAKUDO_REPL_PROMPT
 ------------------
 
-The prompt shown to the user. May contain escape sequences as supported by the `Prompt.expand` method.
+The prompt shown to the user. May contain escape sequences as supported by the [`Prompt.expand`](https://raku.land/zef:lizmat/Prompt#method-expand) method.
 
 RAKUDO_HIST
 -----------
