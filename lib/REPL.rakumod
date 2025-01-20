@@ -1,7 +1,8 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
 use Commands:ver<0.0.2+>:auth<zef:lizmat>;
-use Prompt:ver<0.0.8+>:auth<zef:lizmat>;
+use Prompt:ver<0.0.9+>:auth<zef:lizmat>;
+use Prompt::Expand:ver<0.0.2+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
@@ -124,6 +125,11 @@ role REPL {
     # multiple lines
     has Bool $.multi-line-ok = !%*ENV<RAKUDO_DISABLE_MULTILINE>;
 
+    # Visible prompt handling
+    has Str $.primary-prompt   = %*ENV<RAKUDO_REPL_PROMPT>  // '[:index:] :symbol: ';
+    has Str $.secondary-prompt = %*ENV<RAKUDO_REPL_PROMPT2> // $!primary-prompt;
+    has Str $.symbol           = '>';
+
     # On Windows some things need to be different, this allows an easy check
     has Bool $.is-win is built(:bind) = $*DISTRO.is-win;
 
@@ -187,7 +193,7 @@ role REPL {
     method sink() { .run with self }
 
     method interactive_prompt() {
-        %*ENV<RAKUDO_REPL_PROMPT> // '[\i] > '
+        expand($!primary-prompt, :index(@!values.elems), :$!symbol)
     }
 
     method rakudo-history(:$create) {
@@ -229,8 +235,9 @@ role REPL {
         my str $prompt;
         my str $code;
         sub reset(--> Nil) {
-            $code   = '';
-            $prompt = self.interactive_prompt;
+            $code    = '';
+            $!symbol = '>';
+            $prompt  = self.interactive_prompt;
         }
         reset;
 
@@ -245,7 +252,7 @@ role REPL {
 
               # Handle the special cases
               if $!state == MORE-INPUT {
-                  $prompt = '* ';
+                  $!symbol = '*';
                   next;
               }
               elsif $!state == CONTROL {
@@ -312,9 +319,10 @@ role REPL {
             }
 
             # Fetch the code
-            my $*INDEX := @!values.elems;
-            last
-              without my $command := $!prompt.readline(Prompt.expand($prompt));
+            my $command := $!prompt.readline(
+              expand($prompt, :index(@!values.elems))
+            );
+            last without $command;
 
             $!ctrl-c = 0;
             $code    = $code ~ $command ~ "\n";
