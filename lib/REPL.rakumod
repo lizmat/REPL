@@ -126,9 +126,8 @@ role REPL {
     has Bool $.multi-line-ok = !%*ENV<RAKUDO_DISABLE_MULTILINE>;
 
     # Visible prompt handling
-    has Str $.primary-prompt   = %*ENV<RAKUDO_REPL_PROMPT>  // '[:index:] :symbol: ';
-    has Str $.secondary-prompt = %*ENV<RAKUDO_REPL_PROMPT2> // $!primary-prompt;
-    has Str $.symbol           = '>';
+    has Str $.the-prompt = %*ENV<RAKUDO_REPL_PROMPT> // '[:index:] :symbol: ';
+    has Str @.symbols;
 
     # On Windows some things need to be different, this allows an easy check
     has Bool $.is-win is built(:bind) = $*DISTRO.is-win;
@@ -159,6 +158,11 @@ role REPL {
 
         $!context := nqp::decont($!context);
 
+        $!the-prompt ~= " :symbol: "
+          unless $!the-prompt.contains(":symbol:");
+        @!symbols = (%*ENV<RAKUDO_REPL_SYMBOLS> // ">,*").split(",")
+          unless @!symbols;
+
         if $*VM.name eq 'moar' {
             signal(SIGINT).tap: {
                 if $!ctrl-c++ {
@@ -166,7 +170,7 @@ role REPL {
                     exit;
                 }
                 self.err.say: "Pressed CTRL-c, press CTRL-c again to exit";
-                print self.interactive_prompt;
+                print self.the-prompt;
             }
         }
 
@@ -192,8 +196,11 @@ role REPL {
 
     method sink() { .run with self }
 
-    method interactive_prompt() {
-        expand($!primary-prompt, :index(@!values.elems), :$!symbol)
+    method the-prompt() {
+        expand($!the-prompt,
+          :index(@!values.elems),
+          :symbol(@!symbols[$!state] // "$!state?")
+        )
     }
 
     method rakudo-history(:$create) {
@@ -234,11 +241,7 @@ role REPL {
 
         my str $prompt;
         my str $code;
-        sub reset(--> Nil) {
-            $code    = '';
-            $!symbol = '>';
-            $prompt  = self.interactive_prompt;
-        }
+        sub reset(--> Nil) { $code   = '' }
         reset;
 
         my $commands := Commands.new(
@@ -252,11 +255,11 @@ role REPL {
 
               # Handle the special cases
               if $!state == MORE-INPUT {
-                  $!symbol = '*';
                   next;
               }
               elsif $!state == CONTROL {
                   say "Control flow commands not allowed in toplevel";
+                  $!state = OK;
                   reset;
                   next;
               }
@@ -319,9 +322,7 @@ role REPL {
             }
 
             # Fetch the code
-            my $command := $!prompt.readline(
-              expand($prompt, :index(@!values.elems))
-            );
+            my $command := $!prompt.readline(self.the-prompt);
             last without $command;
 
             $!ctrl-c = 0;
@@ -384,6 +385,7 @@ role REPL {
         }
 
         # Save the context state for the next evaluation
+        $!state    = OK;
         $!context := $*MAIN_CTX;
 
         $value
