@@ -6,9 +6,9 @@
   "build-depends": [
   ],
   "depends": [
-    "Commands:ver<0.0.2+>:auth<zef:lizmat>",
+    "Commands:ver<0.0.6+>:auth<zef:lizmat>",
     "Prompt:ver<0.0.9+>:auth<zef:lizmat>",
-    "Prompt::Expand:ver<0.0.2+>:auth<zef:lizmat>"
+    "Prompt::Expand:ver<0.0.3+>:auth<zef:lizmat>"
   ],
   "description": "A more easily configurable REPL",
   "license": "Artistic-2.0",

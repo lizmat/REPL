@@ -117,6 +117,8 @@ my $repl = REPL.new:
   :val = $*OUT,
   :header,
   :multi-line-ok,
+  :the-prompt("[:index:] :symbol: "),
+  :symbols(">", "*"),
   :is-win($*DISTRO.is-win),
   :@completions,
   :@additional-completions,
@@ -146,13 +148,6 @@ shown.
 
 Whatever is then the value, that value will be used to create a
 L<C<Prompt>|https://raku.land/zef:lizmat/Prompt> object.
-
-=head3 :prompt
-
-The L<C<Prompt>|https://raku.land/zef:lizmat/Prompt> object to be
-used.  If specified, overrides anything related to the <C:editor>
-named argument.  If not specified, will use whatever was (implicitely)
-specified with C<:editor>.
 
 =head3 :output-method
 
@@ -186,12 +181,41 @@ execution time.
 
 =head3 :multi-line-ok
 
-Boolean. Indicate whether it is ok to interprete multiple lines
-of input as a single statement to evaluate.  Defaults to C<True>
-unless the C<RAKUDO_DISABLE_MULTILINE> environment variable has
-been specified with a true value.
+Optional, Boolean. Indicate whether it is ok to interprete multiple
+lines of input as a single statement to evaluate.  Defaults to
+C<True> unless the C<RAKUDO_DISABLE_MULTILINE> environment variable
+has been specified with a true value.
 
 Used value available with the C<.multi-line-ok> method.
+
+=head3 the-prompt
+
+Optional.  Specifies what will be shown to the user before the user
+can enter characters.  Defaults to what has been specified with the
+C<RAKUDO_REPL_PROMPT> environment variable, or C<"[:index:] :symbol: ">.
+
+Supports all of the expansions offered by the
+L<C<Prompt::Expand>|https://raku.land/zef:lizmat/Prompt::Expand>
+distribution.
+
+Note that if there is a prompt (implicitely) specified, the string
+":symbol: " will be added if there is no ":symbol:" specified, to
+make sure the user actually sees a prompting symbol, and to make
+specifying a user prompt a bit easier.
+
+The expanded prompt is also available with the C<.the-prompt> method.
+
+=head3 symbols
+
+Optional.  Specifies the symbols that should be used for the
+C<":symbol:"> placeholder in the different REPL states.  Defaults
+to what has been specified as a comma-separated list with the
+C<RAKUDO_REPL_SYMBOLS> environment variable.  Defaults to
+C«">", "*"» if that is not specified.
+
+Currently the following states are recognized:
+=item 0 - accepting expression to be evaluated
+=item 1 - previous expression not complete, accepting continuation
 
 =head3 :is-win
 
@@ -228,6 +252,13 @@ the line that has been entered so far, and the position of the cursor.
 It is expected to return a (potentially) empty C<List> with the
 new state of the line (so including everything before and after
 the completion).
+
+=head3 :prompt
+
+The L<C<Prompt>|https://raku.land/zef:lizmat/Prompt> object to be
+used.  If specified, overrides anything related to the <C:editor>
+named argument.  If not specified, will use whatever was (implicitely)
+specified with C<:editor>.
 
 =head3 :compiler
 

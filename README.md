@@ -102,6 +102,8 @@ my $repl = REPL.new:
   :val = $*OUT,
   :header,
   :multi-line-ok,
+  :the-prompt("[:index:] :symbol: "),
+  :symbols(">", "*"),
   :is-win($*DISTRO.is-win),
   :@completions,
   :@additional-completions,
@@ -122,10 +124,6 @@ If it can be determined from the environment that the process is running inside 
 If the `RAKUDO_LINE_EDITOR` environment variable is set, then its contents will be assumed as an indication of preference and will first be tried. If that fails, an error message will be shown.
 
 Whatever is then the value, that value will be used to create a [`Prompt`](https://raku.land/zef:lizmat/Prompt) object.
-
-### :prompt
-
-The [`Prompt`](https://raku.land/zef:lizmat/Prompt) object to be used. If specified, overrides anything related to the <C:editor> named argument. If not specified, will use whatever was (implicitely) specified with `:editor`.
 
 ### :output-method
 
@@ -149,9 +147,29 @@ Optional. The `:err` named argument specifies the value of `$*ERR` whenever a co
 
 ### :multi-line-ok
 
-Boolean. Indicate whether it is ok to interprete multiple lines of input as a single statement to evaluate. Defaults to `True` unless the `RAKUDO_DISABLE_MULTILINE` environment variable has been specified with a true value.
+Optional, Boolean. Indicate whether it is ok to interprete multiple lines of input as a single statement to evaluate. Defaults to `True` unless the `RAKUDO_DISABLE_MULTILINE` environment variable has been specified with a true value.
 
 Used value available with the `.multi-line-ok` method.
+
+### the-prompt
+
+Optional. Specifies what will be shown to the user before the user can enter characters. Defaults to what has been specified with the `RAKUDO_REPL_PROMPT` environment variable, or `"[:index:] :symbol: "`.
+
+Supports all of the expansions offered by the [`Prompt::Expand`](https://raku.land/zef:lizmat/Prompt::Expand) distribution.
+
+Note that if there is a prompt (implicitely) specified, the string ":symbol: " will be added if there is no ":symbol:" specified, to make sure the user actually sees a prompting symbol, and to make specifying a user prompt a bit easier.
+
+The expanded prompt is also available with the `.the-prompt` method.
+
+### symbols
+
+Optional. Specifies the symbols that should be used for the `":symbol:"` placeholder in the different REPL states. Defaults to what has been specified as a comma-separated list with the `RAKUDO_REPL_SYMBOLS` environment variable. Defaults to `">", "*"` if that is not specified.
+
+Currently the following states are recognized:
+
+  * 0 - accepting expression to be evaluated
+
+  * 1 - previous expression not complete, accepting continuation
 
 ### :is-win
 
@@ -177,6 +195,10 @@ Used value available with the `.completions` method.
 A `List` of `Callables` to be called to produce tab-completions. If none are specified, the `standard-completions` will be assumed.
 
 Each `Callable` is expected to accept two positional arguments: the line that has been entered so far, and the position of the cursor. It is expected to return a (potentially) empty `List` with the new state of the line (so including everything before and after the completion).
+
+### :prompt
+
+The [`Prompt`](https://raku.land/zef:lizmat/Prompt) object to be used. If specified, overrides anything related to the <C:editor> named argument. If not specified, will use whatever was (implicitely) specified with `:editor`.
 
 ### :compiler
 

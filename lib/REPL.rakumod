@@ -1,8 +1,8 @@
 # Hopefully will replace the REPL class in core at some point
 use nqp;
-use Commands:ver<0.0.2+>:auth<zef:lizmat>;
+use Commands:ver<0.0.6+>:auth<zef:lizmat>;
 use Prompt:ver<0.0.9+>:auth<zef:lizmat>;
-use Prompt::Expand:ver<0.0.2+>:auth<zef:lizmat>;
+use Prompt::Expand:ver<0.0.3+>:auth<zef:lizmat>;
 
 #- constants and prologue ------------------------------------------------------
 my enum Status <OK MORE-INPUT CONTROL>;
@@ -23,6 +23,9 @@ sub ok-for-completion($_) {
       !! Empty                # don't bother will all uppercase
 }
 
+# Just a visual divider
+sub line() { say "-" x 80 }
+
 # Set core completions
 my constant @core-completions = CORE::.keys.map(&ok-for-completion).sort;
 
@@ -32,6 +35,37 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
 }
 
 #- standard completions --------------------------------------------------------
+
+# from String::Utils:ver<0.0.31+>:auth<zef:lizmat>
+my sub word-at(str $string, int $cursor) {
+
+    # something to look at
+    if $cursor >= 0 && nqp::chars($string) -> int $length {
+        my int $last;
+        my int $pos;
+        my int $index;
+        nqp::while(
+          $last < $length && ($pos = nqp::findcclass(
+            nqp::const::CCLASS_WHITESPACE,
+            $string,
+            $last,
+            $length - $last
+          )) < $cursor,
+          nqp::stmts(
+            nqp::if($pos > $last, ++$index),
+            ($last  = $pos + 1)
+          )
+        );
+        $last >= $length || $pos == $last
+          ?? Empty
+          !! ($last, $pos - $last, $index)
+    }
+
+    # nothing to look at
+    else {
+        Empty
+    }
+}
 
 my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
 my sub uniname-words(|c) is export {
@@ -93,14 +127,127 @@ my sub standard-completions($line, $pos is copy = $line.chars) is export {
     }
 }
 
+#- primary handlers ------------------------------------------------------------
+
+# The active REPL class and Commands object
+my $app;
+my $commands;
+my $helper;
+
+my sub editor($) { say "Using the $app.prompt.editor-name() editor" }
+
+my sub help($_) {
+    if .skip.join(" ") -> $deeper {
+        $helper.process($deeper)
+    }
+    else {
+        say "Available commands:";
+        line;
+        say $commands.primaries().join(" ").naive-word-wrapper;
+        say "\nMore in-depth help available with 'help <command>'";
+    }
+}
+
+my sub output($_) {
+    if .[1] -> $method {
+        $app.output-method = $method;
+        say "Output method is now set to '$method'";
+    }
+    else {
+        say "Current output method is '$app.output-method()'";
+    }
+}
+
+my constant %help =
+  completions => q:to/COMPLETIONS/,
+About completions
+COMPLETIONS
+
+  editor => q:to/EDITOR/,
+Show the name of the underlying editor that is being used.  Note that
+only Linenoise and LineEditor allow tab-completions.
+EDITOR
+
+  exit => q:to/EXIT/,
+Exit and save any history.
+EXIT
+
+  help => q:to/HELP/,
+Show available commands if used without additional argument.  If a
+command is specified as an additional argument, show any in-depth
+information about that command.
+
+Subjects with additional information:
+- introduction  an introduction to the ReadEvaluatePrintLoop
+- completions   when to expect tab-completions to work
+HELP
+
+  introduction => q:to/INTRODUCTION/,
+An introduction.
+INTRODUCTION
+
+  output => q:to/OUTPUT/,
+Show or set the expression value output method (e.g. "Str" or
+"gist").
+OUTPUT
+
+  quit => q:to/QUIT/,
+Exit and save any history.
+QUIT
+;
+
+my sub no-extended($_) {
+    say "No extended help available for: $_"
+}
+
+my sub moreinfo(Str:D $command, Str:D $text) {
+    say "More information about: $command";
+    line;
+    say $text.chomp
+}
+
+#- additional completions ------------------------------------------------------
+
+sub additional-completions($line, $pos) {
+
+    my ($start, $chars, $index) = word-at($line, $pos);
+    if $start.defined {
+        my $before := $line.substr(0,$start);
+        my $target := $line.substr($start, $chars).lc;
+        my $after  := $line.substr($start + $chars);
+        $after := " " unless $after;
+
+        # primary command
+        if $index == 0 {
+            $commands.primaries.map({
+                $before ~ $_ ~ $after if .starts-with($target)
+            }).List
+        }
+
+        # secondary command
+        elsif $index == 1 {
+            my @words    = $line.words;
+            my $action  := $commands.resolve-command(@words.head);
+            my sub grepper($_) { $_ if .contains($target, :i, :m) }
+            my @targets;
+
+            if $action eq 'help' {
+                @targets = $helper.primaries.map(&grepper)
+            }
+
+            @targets.map({ $before ~ $_ ~ $after }).sort(*.fc).List
+        }
+    }
+}
+
 #- REPL ------------------------------------------------------------------------
-role REPL {
+role REPL:ver<0.0.12>:auth<zef:lizmat> {
 
     # The low level compiler to be used
     has Mu $.compiler = "Raku";
 
     # When values are shown, use this method on the object
-    has Str $.output-method = %*ENV<RAKU_REPL_OUTPUT_METHOD> // "gist";
+    has Str $.output-method is rw = %*ENV<RAKU_REPL_OUTPUT_METHOD> // "gist";
 
     # The values that were recorded in this session, available inside
     # the REPL as $*0, $*1, etc.
@@ -175,7 +322,9 @@ role REPL {
         }
 
         # Set up standard additional completions if none so far
-        @additional-completions = &standard-completions
+        @additional-completions =
+          &standard-completions,
+          &additional-completions
           unless @additional-completions;
 
         # Make a prompt object if we don't have one yet
@@ -244,7 +393,8 @@ role REPL {
         sub reset(--> Nil) { $code   = '' }
         reset;
 
-        my $commands := Commands.new(
+        $app      := self;
+        $commands := Commands.new(
           :$!out, :$!err,
           default => {
 
@@ -292,19 +442,13 @@ role REPL {
           commands => (
             exit   => { last },
             quit   => "exit",
-            editor => { say "Using the $!prompt.editor-name() editor" },
-            help   => { say "Available commands: $commands.primaries.skip()" },
-            output => {
-                if .[1] -> $method {
-                    $!output-method := $method;
-                    say "Output method is now set to '$method'";
-                }
-                else {
-                    say "Current output method is '$!output-method'";
-                }
-            },
             ""     => { next },
+            &editor, &help, &output
           ),
+        );
+
+        $helper = $commands.extended-help-from-hash(
+          %help, :default(&no-extended), :handler(&moreinfo)
         );
 
         if self.supports-completions && !self.completions {

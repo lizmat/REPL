@@ -1,6 +1,13 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Bump dependencies
+    - Fix multi-line eval bug
+    - Add support for RAKUDO_REPL_PROMPT and RAKUDO_REPL_SYMBOLS
+      environment variables
+    - Add "the-prompt" attribute and method
+    - Add "symbols" attribute and method
+    - Add initial support for extensive help and more completions
 
 0.0.12  2025-01-17T20:02:21+01:00
     - Bump dependency on Prompt to get more prompt escape
