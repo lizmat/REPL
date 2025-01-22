@@ -7,6 +7,8 @@ Revision history for REPL
       environment variables
     - Add "the-prompt" attribute and method
     - Add "symbols" attribute and method
+    - Make all REPL commands start with "=" to prevent collisions
+      with actual code, and provide better completions
     - Add initial support for extensive help and more completions
 
 0.0.12  2025-01-17T20:02:21+01:00

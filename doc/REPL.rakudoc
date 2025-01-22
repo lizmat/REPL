@@ -321,38 +321,41 @@ already.  Defaults to C<$*OUT>.
 
 =head1 USER COMMANDS
 
-The following commands are currently supported: if a command is not
+The following REPL commands are currently supported: if a command is not
 recognized, then C<Raku> code will be assumed and executed if possible.
+Note that all REPL commands start with "C<=>" to prevent confusion with
+possibly legal Raku code.
 
 =head2 editor
 
 Shows the name of the editor logic being used.  Can be shortened all the
-way to "ed".
+way to "=ed".
 
 =head2 exit
 
-Leaves the REPL.  Can be shortened all the way to "ex".
+Leaves the REPL.  Can be shortened all the way to "=ex".
 
 =head2 help
 
-Shows a list of available commands.  Can be shortened all the way to "h".
+Shows a list of available commands.  Can be shortened all the way to "=h".
 
 =head2 output [method]
 
 Shows the current output method.  If a second argument is specified, it
 indicates the name of the output method to be used from now on.  Typical
-values are "raku", "Str", "gist".  Can be shortened all the way to "o".
+values are "raku", "Str", "gist".  Can be shortened all the way to "=o".
 
 =head2 quit
 
-Leaves the REPL.  Can be shortened all the way to "q".
+Leaves the REPL.  Can be shortened all the way to "=q", and is thus the
+shortest way to leave the REPL with a REPL command.
 
 =head1 TAB COMPLETIONS
 
 If the C<supports-completions> method returns C<True>, the standard
 tab-completion logic will provide:
 =item all relevant items from the CORE:: namespace
-=item any relevant items from the direct context
+=item any relevant items from the direct context (such as a REPL command)
 =item \^123 will tab-complete to ¹²³
 =item \_123 will tab-complete to ₁₂₃
 =item foo! will tab-complete to FOO, foo, Foo
@@ -373,6 +376,11 @@ The prompt shown to the user.  May contain escape sequences as supported
 by the L<C<Prompt.expand>|https://raku.land/zef:lizmat/Prompt#method-expand>
 method.
 
+=head2 RAKUDO_REPL_SYMBOLS
+
+A comma separated list of symbols representing the states of the REPL.
+Defaults to C«>,*>».
+
 =head2 RAKUDO_HIST
 
 Path where the history file is / should be stored.
@@ -384,24 +392,6 @@ The name of the method with which to show results to the user.
 =head2 RAKUDO_DISABLE_MULTILINE
 
 Whether multi-line evaluations should be disabled or not.
-
-=head1 GOALS
-
-The following goals have been defined so far:
-
-=item Adherence to supporting currently by the REPL logic recognized
-environment variables (done)
-=item Provide an actual REPL class that can be easily configured and
-provide documentation (done)
-=item Attempt to fix many outstanding bugs about the Rakudo REPL
-(done all that were fixable at this level)
-=item Provided better documented and better maintainable code that is
-based on "modern" Raku (done)
-=item Provide a way to support specific commands and their actions
-so that we don't need any REPL helper modules, but provide an
-API to provide additional functionality (done)
-=item Once the API for customization is more stable, replace the
-REPL code in Rakudo with the code in this module.
 
 =head1 AUTHOR
 

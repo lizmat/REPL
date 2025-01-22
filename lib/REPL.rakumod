@@ -24,7 +24,7 @@ sub ok-for-completion($_) {
 }
 
 # Just a visual divider
-sub line() { say "-" x 80 }
+sub line() { say "-" x 70 }
 
 # Set core completions
 my constant @core-completions = CORE::.keys.map(&ok-for-completion).sort;
@@ -134,38 +134,122 @@ my $app;
 my $commands;
 my $helper;
 
-my sub editor($) { say "Using the $app.prompt.editor-name() editor" }
+my sub completions($) {
+    say expand ":bold:About TAB completions:unbold:";
+    line;
+    print expand q:to/COMPLETIONS/;
+The TAB key has a special function in the REPL.  When pressed,
+the REPL tries to elucidate what you as a user want to expand.
+
+If the line starts with "=", then it will look in the list of
+available REPL commands, and show the first that matched.
+Pressing TAB again will show the second, and so on until the
+list is exhausted, at which point it will start from the
+beginning again.  At any point you can add additional characters
+(or remove them) and press TAB again to create a new list of
+alternatives.
+
+For example, pressing "=", "e", "TAB" will show "=editor".
+Pressing TAB again, will show "=exit".  And pressing TAB once
+again, will show "=e" again.
+
+If the line does :bold:not:unbold: start with "=", then TAB completions will
+attempt to complete to Raku core features.  For instance,
+entering "Da", and then pressing TAB repeatedly will cycle
+through "Date", "DateTime", "Dateish", all core Raku features.
+
+Finally, some special REPL completions will change the presentation
+of the string immediately preceding it.  They are:
+
+\^123  - change integer value to superscript: ¹²³ 
+\_123  - change integer value to subscript: ₁₂₃
+fOo!   - cycle through FOO, foo, Foo (upper, lower, titlecase)
+COMPLETIONS
+    line;
+}
+
+my sub editor($) {
+    say "Using the $app.prompt.editor-name() editor."
+}
 
 my sub help($_) {
     if .skip.join(" ") -> $deeper {
         $helper.process($deeper)
     }
     else {
-        say "Available commands:";
+        say "Available REPL commands:";
         line;
         say $commands.primaries().join(" ").naive-word-wrapper;
-        say "\nMore in-depth help available with 'help <command>'";
+        say "\nMore in-depth help available with '=help <command>'";
     }
+}
+
+my sub introduction($) {
+    say expand ":bold:Introduction to the Read Evaluate Print Loop:unbold:";
+    line;
+    print expand qq:to/INTRODUCTION/;
+The Read Evaluate Print Loop provides an interactive way to enter
+Raku Programming Language commands and see the results of their
+execution immediately.
+
+If the code entered does not cause any output (whether that be on
+STDOUT or STDERR), then the result of the code will be saved and
+an internal index will be incremented (which is usually shown as
+"[0]" in the prompt).  Previously saved values can be accessed by
+the "\$*0", "\$*1", etc.
+
+If the code entered was deemed to be incomplete, the symbol in the
+prompt changes (from ':bold:$app.symbols()[0]:unbold:' to ':bold:$app.symbols()[1]:unbold:') to indicate that you need to
+enter more code before a result can be calculated.
+
+Apart from being able to enter source code, one can also enter a
+number of REPL specific commands, which all start with a "=" symbol.
+
+The "=" symbol was chosen because it has a special meaning in the
+Raku Programming Language when used at the beginning of a line: it
+then indicates so-called RakuDoc: external (user) documentation
+embedded in the source code.  Since one will most likely not be
+documenting source code in a REPL, it was thought to be a good
+choice for use as a REPL command escape.
+
+The available REPL commands are:
+INTRODUCTION
+
+    say "  '$_'" for $commands.primaries.grep({$_});
+
+    print expand q:to/INTRODUCTION/;
+
+If you need more help on a REPL command, you can do '=help =command'.
+
+:bold:Note::unbold: you can always press TAB for so-called "TAB completions".
+This allows you to get to e.g. get to '=help =editor' by entering
+"=", "h", TAB, "=", "e", TAB.  See "=completions" for more info
+on TAB completions.
+INTRODUCTION
+    line;
 }
 
 my sub output($_) {
     if .[1] -> $method {
         $app.output-method = $method;
-        say "Output method is now set to '$method'";
+        say "Output method is now set to '$method'.";
     }
     else {
-        say "Current output method is '$app.output-method()'";
+        say "Current output method is '$app.output-method()'.";
     }
 }
 
-my constant %help =
+my constant %help = do {
+    my @help =
+
   completions => q:to/COMPLETIONS/,
-About completions
+Provides information about TAB completions.
 COMPLETIONS
 
   editor => q:to/EDITOR/,
-Show the name of the underlying editor that is being used.  Note that
-only Linenoise and LineEditor allow tab-completions.
+Show the name of the underlying editor that is being used.  This is
+purely informational.  Note that only Linenoise and LineEditor allow
+tab-completions.
 EDITOR
 
   exit => q:to/EXIT/,
@@ -176,14 +260,10 @@ EXIT
 Show available commands if used without additional argument.  If a
 command is specified as an additional argument, show any in-depth
 information about that command.
-
-Subjects with additional information:
-- introduction  an introduction to the ReadEvaluatePrintLoop
-- completions   when to expect tab-completions to work
 HELP
 
   introduction => q:to/INTRODUCTION/,
-An introduction.
+Provides an introduction to the ReadEvaluatePrintLoop.
 INTRODUCTION
 
   output => q:to/OUTPUT/,
@@ -194,7 +274,10 @@ OUTPUT
   quit => q:to/QUIT/,
 Exit and save any history.
 QUIT
-;
+    ;
+
+    @help.Slip, @help.map({"=$_.key()" => .value}).Slip
+}
 
 my sub no-extended($_) {
     say "No extended help available for: $_"
@@ -231,7 +314,7 @@ sub additional-completions($line, $pos) {
             my sub grepper($_) { $_ if .contains($target, :i, :m) }
             my @targets;
 
-            if $action eq 'help' {
+            if $action eq '=help' {
                 @targets = $helper.primaries.map(&grepper)
             }
 
@@ -383,10 +466,10 @@ role REPL:ver<0.0.12>:auth<zef:lizmat> {
         }
 
         say $no-exit
-          ?? "Type 'exit' to leave"
+          ?? "Type '=quit' to leave"
           !! $!is-win
-            ?? "To exit type 'exit' or '^Z'"
-            !! "To exit type 'exit' or '^D'";
+            ?? "To exit type '=quit' or '^Z'"
+            !! "To exit type '=quit' or '^D'";
 
         my str $prompt;
         my str $code;
@@ -440,10 +523,12 @@ role REPL:ver<0.0.12>:auth<zef:lizmat> {
               }
           },
           commands => (
-            exit   => { last },
-            quit   => "exit",
-            ""     => { next },
-            &editor, &help, &output
+            "=exit"   => { last },
+            "=quit"   => { last },
+            ""        => { next },
+            (&completions, &editor, &help, &introduction, &output).map({
+                "=$_.name()" => $_
+            }).Slip
           ),
         );
 
@@ -493,6 +578,17 @@ role REPL:ver<0.0.12>:auth<zef:lizmat> {
 
             when X::ControlFlow::Return {
                 $!state = CONTROL;
+                return Nil;
+            }
+
+            when X::Syntax::InfixInTermPosition {
+                if .infix eq "=" && $code.starts-with("=") {
+                    say "Unknown REPL command: $code.words.head()";
+                    say "Enter '=help' for a list of available REPL commands.";
+                }
+                else {
+                    $!exception = $_;
+                }
                 return Nil;
             }
 

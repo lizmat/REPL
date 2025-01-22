@@ -254,32 +254,32 @@ The object to be used for outputting values that weren't shown already. Defaults
 USER COMMANDS
 =============
 
-The following commands are currently supported: if a command is not recognized, then `Raku` code will be assumed and executed if possible.
+The following REPL commands are currently supported: if a command is not recognized, then `Raku` code will be assumed and executed if possible. Note that all REPL commands start with "`=`" to prevent confusion with possibly legal Raku code.
 
 editor
 ------
 
-Shows the name of the editor logic being used. Can be shortened all the way to "ed".
+Shows the name of the editor logic being used. Can be shortened all the way to "=ed".
 
 exit
 ----
 
-Leaves the REPL. Can be shortened all the way to "ex".
+Leaves the REPL. Can be shortened all the way to "=ex".
 
 help
 ----
 
-Shows a list of available commands. Can be shortened all the way to "h".
+Shows a list of available commands. Can be shortened all the way to "=h".
 
 output [method]
 ---------------
 
-Shows the current output method. If a second argument is specified, it indicates the name of the output method to be used from now on. Typical values are "raku", "Str", "gist". Can be shortened all the way to "o".
+Shows the current output method. If a second argument is specified, it indicates the name of the output method to be used from now on. Typical values are "raku", "Str", "gist". Can be shortened all the way to "=o".
 
 quit
 ----
 
-Leaves the REPL. Can be shortened all the way to "q".
+Leaves the REPL. Can be shortened all the way to "=q", and is thus the shortest way to leave the REPL with a REPL command.
 
 TAB COMPLETIONS
 ===============
@@ -288,7 +288,7 @@ If the `supports-completions` method returns `True`, the standard tab-completion
 
   * all relevant items from the CORE:: namespace
 
-  * any relevant items from the direct context
+  * any relevant items from the direct context (such as a REPL command)
 
   * \^123 will tab-complete to ¹²³
 
@@ -312,6 +312,11 @@ RAKUDO_REPL_PROMPT
 
 The prompt shown to the user. May contain escape sequences as supported by the [`Prompt.expand`](https://raku.land/zef:lizmat/Prompt#method-expand) method.
 
+RAKUDO_REPL_SYMBOLS
+-------------------
+
+A comma separated list of symbols representing the states of the REPL. Defaults to `>,*>`.
+
 RAKUDO_HIST
 -----------
 
@@ -326,23 +331,6 @@ RAKUDO_DISABLE_MULTILINE
 ------------------------
 
 Whether multi-line evaluations should be disabled or not.
-
-GOALS
-=====
-
-The following goals have been defined so far:
-
-  * Adherence to supporting currently by the REPL logic recognized environment variables (done)
-
-  * Provide an actual REPL class that can be easily configured and provide documentation (done)
-
-  * Attempt to fix many outstanding bugs about the Rakudo REPL (done all that were fixable at this level)
-
-  * Provided better documented and better maintainable code that is based on "modern" Raku (done)
-
-  * Provide a way to support specific commands and their actions so that we don't need any REPL helper modules, but provide an API to provide additional functionality (done)
-
-  * Once the API for customization is more stable, replace the REPL code in Rakudo with the code in this module.
 
 AUTHOR
 ======
