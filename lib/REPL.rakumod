@@ -324,7 +324,7 @@ sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.12>:auth<zef:lizmat> {
+role REPL:ver<0.0.13>:auth<zef:lizmat> {
 
     # The low level compiler to be used
     has Mu $.compiler = "Raku";

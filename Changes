@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.13  2025-01-22T17:19:53+01:00
     - Bump dependencies
     - Fix multi-line eval bug
     - Add support for RAKUDO_REPL_PROMPT and RAKUDO_REPL_SYMBOLS
