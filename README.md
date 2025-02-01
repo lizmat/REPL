@@ -281,6 +281,16 @@ quit
 
 Leaves the REPL. Can be shortened all the way to "=q", and is thus the shortest way to leave the REPL with a REPL command.
 
+read [path]
+-----------
+
+Read the code from the file with the indicated path and compiles and executes it. Remembers the path name so that subsequent =write commands need not have it specified.
+
+write [path]
+------------
+
+Write all lines entered that did **not** produce any output to the indicated path. Remembers the path name from =read and =write so that subsequent =write commands need not have it specified.
+
 TAB COMPLETIONS
 ===============
 

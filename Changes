@@ -1,6 +1,11 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Add "=read" command to read a file of source code and
+      compile and execute it
+    - Add "=write" command to write a file with the source code
+      entered (or =read) in this session that did *not* produce
+      any output
 
 0.0.13  2025-01-22T17:19:53+01:00
     - Bump dependencies

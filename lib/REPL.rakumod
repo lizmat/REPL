@@ -239,6 +239,42 @@ my sub output($_) {
     }
 }
 
+my sub read($_) {
+    if .[1] // $app.path-of-code -> $path {
+        $app.path-of-code = $path;
+        if $path.IO.slurp -> $code {
+            $app.eval($code);
+            $app.code = $code;
+            say "Executed code found in '$path' ($code.lines.elems() lines)";
+        }
+        else {
+            say "No code found in '$path'";
+        }
+    }
+    else {
+        say "Must specify path of to read code from";
+    }
+}
+
+my sub write($_) {
+    if .[1] // $app.path-of-code -> $path {
+        $app.path-of-code = $path;
+        if $app.code -> @code {
+            say (my $result := $path.IO.spurt(@code.join("\n")))
+              ?? "Code written to '$path'"
+              !! $result;
+        }
+        else {
+            say "No code to save";
+        }
+    }
+    else {
+        say "Must specify path of to write code to";
+    }
+}
+
+#- help support ----------------------------------------------------------------
+
 my constant %help = do {
     my @help =
 
@@ -274,6 +310,18 @@ OUTPUT
   quit => q:to/QUIT/,
 Exit and save any history.
 QUIT
+
+  read => q:to/READ/,
+Read the code from the file with the indicated path and compiles and
+executes it.  Remembers the path name so that subsequent =write
+commands need not have it specified.
+READ
+
+  write => q:to/WRITE/,
+Write all lines entered that did *not* produce any output to the
+indicated path.  Remembers the path name from =read and =write so
+that subsequent =write commands need not have it specified.
+WRITE
     ;
 
     @help.Slip, @help.map({"=$_.key()" => .value}).Slip
@@ -335,6 +383,10 @@ role REPL:ver<0.0.13>:auth<zef:lizmat> {
     # The values that were recorded in this session, available inside
     # the REPL as $*0, $*1, etc.
     has Mu @.values;
+
+    # The code that caused values to be recorded in this session.
+    has str $.path-of-code is rw;
+    has str @.code;
 
     # The prompt logic being used
     has Mu $.prompt handles <
@@ -520,15 +572,21 @@ role REPL:ver<0.0.13>:auth<zef:lizmat> {
                   );
 
                   @!values.push: $value;
+
+                  # Save code with an additional ";" to mark the end of a
+                  # statement, to allow the concatenation later to do the
+                  # right thing
+                  @!code.push: "$*INPUT;";
               }
           },
           commands => (
             "=exit"   => { last },
             "=quit"   => { last },
             ""        => { next },
-            (&completions, &editor, &help, &introduction, &output).map({
-                "=$_.name()" => $_
-            }).Slip
+            (
+              &completions, &editor, &help, &introduction,
+              &output, &read, &write
+            ).map({ "=$_.name()" => $_ }).Slip
           ),
         );
 
