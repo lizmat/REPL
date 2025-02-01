@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.14  2025-02-01T16:34:49+01:00
     - Add "=read" command to read a file of source code and
       compile and execute it
     - Add "=write" command to write a file with the source code
