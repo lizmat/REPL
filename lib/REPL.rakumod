@@ -256,6 +256,11 @@ my sub read($_) {
     }
 }
 
+my sub reset($_) {
+    $app.reset;
+    say "Status has been reset";
+}
+
 my sub write($_) {
     if .[1] // $app.path-of-code -> $path {
         $app.path-of-code = $path;
@@ -316,6 +321,10 @@ Read the code from the file with the indicated path and compiles and
 executes it.  Remembers the path name so that subsequent =write
 commands need not have it specified.
 READ
+
+  reset => q:to/RESET/,
+Reset the status of the REPL as if it was freshly entered.
+RESET
 
   write => q:to/WRITE/,
 Write all lines entered that did *not* produce any output to the
@@ -402,6 +411,7 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
     # The current NQP context that has all of the definitions that were
     # made in this session
     has Mu $.context is built(:bind) = nqp::null;
+    has Mu $!reset-context;
 
     # Whether it is allowed to have code evalled stretching over
     # multiple lines
@@ -438,7 +448,8 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
         $!compiler := nqp::getcomp(nqp::decont($!compiler))
           if nqp::istype($!compiler,Str);
 
-        $!context := nqp::decont($!context);
+        $!context       := nqp::decont($!context);
+        $!reset-context := $!context;
 
         $!the-prompt ~= " :symbol: "
           unless $!the-prompt.contains(":symbol:");
@@ -477,6 +488,11 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
     method val() { $!val // $*OUT }
     method out() { $!out // $*OUT }
     method err() { $!err // $*ERR }
+
+    method reset() {
+        @!values   = @!code = ();
+        $!context := $!reset-context;
+    }
 
     method sink() { .run with self }
 
@@ -525,8 +541,8 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
 
         my str $prompt;
         my str $code;
-        sub reset(--> Nil) { $code   = '' }
-        reset;
+        my sub reset-code(--> Nil) { $code = '' }
+        reset-code;
 
         $app      := self;
         $commands := Commands.new(
@@ -545,7 +561,7 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
               elsif $!state == CONTROL {
                   say "Control flow commands not allowed in toplevel";
                   $!state = OK;
-                  reset;
+                  reset-code;
                   next;
               }
 
@@ -574,9 +590,11 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
                   @!values.push: $value;
 
                   # Save code with an additional ";" to mark the end of a
-                  # statement, to allow the concatenation later to do the
-                  # right thing
-                  @!code.push: "$*INPUT;";
+                  # statement if that is needed, to allow the concatenation
+                  # later to do the right thing
+                  @!code.push: $*INPUT.ends-with(';' | '}')
+                    ?? $*INPUT
+                    !! "$*INPUT;";
               }
           },
           commands => (
@@ -585,7 +603,7 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
             ""        => { next },
             (
               &completions, &editor, &help, &introduction,
-              &output, &read, &write
+              &output, &read, &reset, &write
             ).map({ "=$_.name()" => $_ }).Slip
           ),
         );
@@ -605,7 +623,7 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
         loop {
             # Why doesn't the catch-default in eval catch all?
             CATCH {
-                default { say $_; reset }
+                default { say $_; reset-code }
             }
 
             # Fetch the code
@@ -616,7 +634,7 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
             $code    = $code ~ $command ~ "\n";
 
             $commands.process($code.chomp);
-            reset;
+            reset-code;
         }
 
         self.teardown;
