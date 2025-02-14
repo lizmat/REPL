@@ -286,6 +286,11 @@ read [path]
 
 Read the code from the file with the indicated path and compiles and executes it. Remembers the path name so that subsequent =write commands need not have it specified.
 
+reset
+-----
+
+Reset the status of the REPL as if it was freshly entered.
+
 write [path]
 ------------
 

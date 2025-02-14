@@ -2,6 +2,9 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.15  2025-02-14T18:13:20+01:00
+    - Allow for heredoc strings in the REPL
+
 0.0.14  2025-02-01T16:34:49+01:00
     - Add "=read" command to read a file of source code and
       compile and execute it

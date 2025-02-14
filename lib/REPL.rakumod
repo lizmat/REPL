@@ -381,7 +381,7 @@ sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.14>:auth<zef:lizmat> {
+role REPL:ver<0.0.15>:auth<zef:lizmat> {
 
     # The low level compiler to be used
     has Mu $.compiler = "Raku";
@@ -647,9 +647,18 @@ role REPL:ver<0.0.14>:auth<zef:lizmat> {
                     $!state = MORE-INPUT;
                     return Nil;
                 }
-                else {
-                    .throw
+                .throw
+            }
+
+            when X::AdHoc {
+                if .message eq 'Premature heredoc consumption'
+                  || .message.starts-with('Ending delimiter ') {
+                    if $!multi-line-ok {
+                        $!state = MORE-INPUT;
+                        return Nil;
+                    }
                 }
+                .throw
             }
 
             when X::ControlFlow::Return {
