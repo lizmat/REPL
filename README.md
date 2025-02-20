@@ -256,6 +256,16 @@ USER COMMANDS
 
 The following REPL commands are currently supported: if a command is not recognized, then `Raku` code will be assumed and executed if possible. Note that all REPL commands start with "`=`" to prevent confusion with possibly legal Raku code.
 
+completions
+-----------
+
+Shows an introduction to completions. Can be shortened to "=com".
+
+context
+-------
+
+Allows creation of and switching between 2 or more contexts: "new" creates a new context and switches to it, "switch" switches to an already existing context, and "list" shows the available contexts. Can be shortened to "=con".
+
 editor
 ------
 
@@ -270,6 +280,11 @@ help
 ----
 
 Shows a list of available commands. Can be shortened all the way to "=h".
+
+introduction
+------------
+
+Shows a general introduction. Can be shortened to "=in".
 
 output [method]
 ---------------

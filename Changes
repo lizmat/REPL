@@ -1,6 +1,11 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Made sure that :compiler and :multi-line-ok named args
+      are passed on to CodeUnit if no specific CodeUnit was
+      given
+    - Add initial support for multiple contexts
+    - Make sure the .eval method works again
 
 0.0.16  2025-02-20T14:43:19+01:00
     - Add dependency on String::Utils to prevent code doubling

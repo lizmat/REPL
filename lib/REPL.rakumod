@@ -11,6 +11,9 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
       ~ $exception.gist.indent(4);
 }
 
+my $default-context := nqp::ctxcaller(nqp::ctx);
+my constant $default-context-name = '(default)';
+
 #- standard completions --------------------------------------------------------
 
 my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
@@ -117,8 +120,66 @@ COMPLETIONS
     line;
 }
 
+my sub context-handler($_) {
+    my %contexts   := $app.contexts;
+    my str $current = $app.context;
+
+    # List the known contexts
+    my sub list() {
+        for %contexts.keys.sort {
+            say ($_ eq $current ?? "* " !! "  ") ~ $_;
+        }
+    }
+
+    # Need to do something
+    if .[1] -> str $action {
+        if $action eq 'new' {
+            if .[2] -> $new {
+                if %contexts{$new} {
+                    say "A context named '$new' already exists, did you mean 'switch'?";
+                }
+                else {
+                    $app.set-context($new);
+                    say "Created '$new' context and switched to it";
+                }
+            }
+            else {
+                say "Must specify a name of a new context";
+            }
+        }
+        elsif $action eq 'switch' {
+            if .[2] -> $new {
+                if %contexts{$new} {
+                    $app.set-context($new);
+                    say "Switched to '$new' context";
+                }
+                else {
+                    say "No context '$new' known, these are the known contexts:";
+                    list;
+                }
+            }
+            elsif $current eq $default-context-name {
+                say "Need to specify the name of the context to switch to";
+            }
+            else {
+                $app.set-context;
+                say "Switched back to default context";
+            }
+        }
+        elsif $action eq 'list' {
+            list;
+        }
+        else {
+            say "Don't know what to do with '$_'";
+        }
+    }
+    else {
+        say "Currently in '$current' context";
+    }
+}
+
 my sub editor($) {
-    say "Using the $app.prompt.editor-name() editor."
+    say "Using the $app.prompt.editor-name() editor.";
 }
 
 my sub help($_) {
@@ -236,6 +297,12 @@ my constant %help = do {
 Provides information about TAB completions.
 COMPLETIONS
 
+  context => q:to/CONTEXT/,
+Allows creation of and switching between 2 or more contexts: "new"
+creates a new context and switches to it, "switch" switches to an
+already existing context, and "list" shows the available contexts.
+CONTEXT
+
   editor => q:to/EDITOR/,
 Show the name of the underlying editor that is being used.  This is
 purely informational.  Note that only Linenoise and LineEditor allow
@@ -323,6 +390,9 @@ my sub additional-completions($line, $pos) {
             if $action eq '=help' {
                 @targets = $helper.primaries.map(&grepper)
             }
+            elsif $action eq '=context' {
+                @targets = <list new switch>;
+            }
 
             @targets.map({ $before ~ $_ ~ $after }).sort(*.fc).List
         }
@@ -333,7 +403,9 @@ my sub additional-completions($line, $pos) {
 role REPL:ver<0.0.16>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
-    has Mu $.codeunit is built(:bind) handles <eval>;
+    has Mu  $.codeunit is built(:bind) handles <eval>;
+    has str $.context  is built(False) is rw;
+    has Mu  %.contexts is built(False);
 
     # When values are shown, use this method on the object
     has Str $.output-method is rw = %*ENV<RAKU_REPL_OUTPUT_METHOD> // "gist";
@@ -371,12 +443,13 @@ role REPL:ver<0.0.16>:auth<zef:lizmat> {
     has int $!ctrl-c;
 
     method TWEAK(
-      Mu :$context = nqp::null,
+      Mu :$context = $default-context,
          :$editor,
          :@additional-completions
     ) {
-        $!codeunit := CodeUnit.new(:$context)
+        $!codeunit := CodeUnit.new(:$context, |%_)
           unless nqp::isconcrete( $!codeunit);
+        %!contexts{$!context = $default-context-name} := $!codeunit;
 
         $!the-prompt ~= " :symbol: "
           unless $!the-prompt.contains(":symbol:");
@@ -422,6 +495,14 @@ role REPL:ver<0.0.16>:auth<zef:lizmat> {
     }
 
     method sink() { .run with self }
+
+    method set-context(
+      str $new = $default-context-name
+    --> Nil) is implementation-detail {
+        $!codeunit := %!contexts{$new}
+          // (%!contexts{$new} := CodeUnit.new(:context($default-context)));
+        $!context = $new;
+    }
 
     method the-prompt() {
         my $state := $!codeunit.state;
@@ -529,9 +610,10 @@ role REPL:ver<0.0.16>:auth<zef:lizmat> {
               }
           },
           commands => (
-            "=exit"   => { last },
-            "=quit"   => { last },
-            ""        => { next },
+            "=exit"    => { last },
+            "=quit"    => { last },
+            "=context" => &context-handler,
+            ""         => { next },
             (
               &completions, &editor, &help, &introduction,
               &output, &read, &reset, &write

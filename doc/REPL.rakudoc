@@ -326,6 +326,17 @@ recognized, then C<Raku> code will be assumed and executed if possible.
 Note that all REPL commands start with "C<=>" to prevent confusion with
 possibly legal Raku code.
 
+=head2 completions
+
+Shows an introduction to completions.  Can be shortened to "=com".
+
+=head2 context
+
+Allows creation of and switching between 2 or more contexts: "new"
+creates a new context and switches to it, "switch" switches to an
+already existing context, and "list" shows the available contexts.
+Can be shortened to "=con".
+
 =head2 editor
 
 Shows the name of the editor logic being used.  Can be shortened all the
@@ -338,6 +349,10 @@ Leaves the REPL.  Can be shortened all the way to "=ex".
 =head2 help
 
 Shows a list of available commands.  Can be shortened all the way to "=h".
+
+=head2 introduction
+
+Shows a general introduction.  Can be shortened to "=in".
 
 =head2 output [method]
 
