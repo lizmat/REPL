@@ -1,10 +1,13 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.17  2025-02-20T20:07:17+01:00
     - Made sure that :compiler and :multi-line-ok named args
       are passed on to CodeUnit if no specific CodeUnit was
       given
-    - Add initial support for multiple contexts
+    - Add initial support for multiple contexts with =context
+      command
     - Make sure the .eval method works again
 
 0.0.16  2025-02-20T14:43:19+01:00

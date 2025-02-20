@@ -400,7 +400,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.16>:auth<zef:lizmat> {
+role REPL:ver<0.0.17>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
