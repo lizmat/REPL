@@ -499,9 +499,28 @@ role REPL:ver<0.0.16>:auth<zef:lizmat> {
     method set-context(
       str $new = $default-context-name
     --> Nil) is implementation-detail {
-        $!codeunit := %!contexts{$new}
-          // (%!contexts{$new} := CodeUnit.new(:context($default-context)));
-        $!context = $new;
+
+        if $!context ne $new {
+
+            # save current settings
+            %!contexts{$!context} := (
+              $!codeunit, @!values, $!path-of-code, @!code
+            );
+
+            if %!contexts{$new} -> @info {
+                $!codeunit    := @info[0];
+                @!values      := @info[1];
+                $!path-of-code = @info[2];
+                @!code        := @info[3];
+            }
+            else {
+                $!codeunit := CodeUnit.new(:context($default-context));
+                @!values   := my Mu @;
+                $!path-of-code = "";
+                @!code     := my str @;
+            }
+            $!context = $new;
+        }
     }
 
     method the-prompt() {
