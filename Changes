@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.16  2025-02-20T14:43:19+01:00
     - Add dependency on String::Utils to prevent code doubling
       and we have plenty of dependencies already
     - Move the eval related code to a new CodeUnit module, and
