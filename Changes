@@ -1,6 +1,10 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Add dependency on String::Utils to prevent code doubling
+      and we have plenty of dependencies already
+    - Move the eval related code to a new CodeUnit module, and
+      add a dependency to that
 
 0.0.15  2025-02-14T18:13:20+01:00
     - Allow for heredoc strings in the REPL
