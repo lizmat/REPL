@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.18  2025-02-21T14:54:44+01:00
     - Add =stack command, idea stolen from Brian Duggan's
       Repl::Tools distribution
     - Bump dependencies on CodeUnit / Commands because we can
