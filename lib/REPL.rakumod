@@ -12,12 +12,12 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
       ~ $exception.gist.indent(4);
 }
 
+# Context for "=context new"
 my $default-context := nqp::ctxcaller(nqp::ctx);
 my constant $default-context-name = '(default)';
 
-# Defaults for highlighting on terminals
-my constant BON  = "\e[1m";   # BOLD ON
-my constant BOFF = "\e[22m";  # BOLD OFF
+# Key to exit with
+my $exit-letter = $*DISTRO.is-win ?? "^Z" !! "^D";
 
 #- standard completions --------------------------------------------------------
 
@@ -202,7 +202,8 @@ my sub help($_) {
     }
     else {
         line "Available REPL commands:";
-        say $commands.primaries().join(" ").naive-word-wrapper;
+        say $commands.primaries()
+          .grep(*.starts-with("=")).join(" ").naive-word-wrapper;
         say "\nMore in-depth help available with '=help <command>'";
     }
 }
@@ -303,14 +304,14 @@ my sub stack($) {
     }
 
     line "stack";
-    .print unless .is-setting || .is-hidden for @frames.skip($index);
+    .print unless .is-setting || .is-hidden for @frames.skip(++$index);
     put "";
 
-    my $here := $bt[++$index];
+    my $here := $bt[$index];
     my $file := $here.file.subst(/ ' (' <-[)]>+ ')' $$/,'');
     line "file: $file";
     my $current := $here.line;
-    my $width   := $current.chars + 2;
+    my $width   := $current.chars + 1;
 
     my str @lines = $file eq '-e'
       ?? Rakudo::Internals.PROGRAM.substr(3).lines
@@ -319,9 +320,9 @@ my sub stack($) {
 
     for @lines.kv.skip(2) -> $i, $line {
         if $current - 10 < $i < $current + 10 {
-            print BON if $i == $current;
+            print expand ":bold:" if $i == $current;
             put "$i.fmt("%{$width}d") $line";
-            print BOFF if $i == $current;
+            print expand ":unbold:" if $i == $current;
         }
     }
     put "";
@@ -625,9 +626,7 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
 
         say $no-exit
           ?? "Type '=quit' to leave"
-          !! $!is-win
-            ?? "To exit type '=quit' or '^Z'"
-            !! "To exit type '=quit' or '^D'";
+          !! "To exit type '=quit' or '$exit-letter'. Type '=help' for help.";
 
         my str $prompt;
         my str $code;
@@ -694,10 +693,11 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
               }
           },
           commands => (
-            "=context" => &context-handler,
-            "=exit"    => { last },
-            "=quit"    => { last },
-            ""         => { next },
+            "=context"   => &context-handler,
+            $exit-letter => { last },
+            "=exit"      => { last },
+            "=quit"      => { last },
+            ""           => { next },
             (
               &completions, &edit, &help, &info, &introduction,
               &output, &read, &reset, &stack, &write
