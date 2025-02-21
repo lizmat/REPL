@@ -519,8 +519,9 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
 
         $!the-prompt ~= " :symbol: "
           unless $!the-prompt.contains(":symbol:");
-        @!symbols = (%*ENV<RAKUDO_REPL_SYMBOLS> // ">,*").split(",")
-          unless @!symbols;
+        @!symbols =
+          (@!symbols.head // %*ENV<RAKUDO_REPL_SYMBOLS> // ">,*").split(",")
+          unless @!symbols > 1;
 
         if $*VM.name eq 'moar' {
             signal(SIGINT).tap: {
@@ -618,15 +619,13 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
 
     method repl-loop(|c) { self.run(|c) }
 
-    method run(:$no-exit) {
+    method run() {
         if $!header {
             self.val.say: $!codeunit.compiler-version(:no-unicode($!is-win));
             $!header = False;
         }
 
-        say $no-exit
-          ?? "Type '=quit' to leave"
-          !! "To exit type '=quit' or '$exit-letter'. Type '=help' for help.";
+        say "To exit type '=quit' or '$exit-letter'. Type '=help' for help.";
 
         my str $prompt;
         my str $code;
@@ -743,7 +742,7 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
 # Debugging aid
 my sub repl(*%_) {
     my $context := nqp::ctxcaller(nqp::ctx);
-    REPL.new(:no-exit, :$context, :!header, |%_)
+    REPL.new(:$context, :!header, |%_)
 }
 
 #- (re-)exporting --------------------------------------------------------------

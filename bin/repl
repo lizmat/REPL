@@ -1,7 +1,14 @@
 use REPL;
 
+@*ARGS = @*ARGS.grep(*.starts-with(<
+  --editor
+  --/header
+  --/multi-line-ok
+  --output-method
+  --symbols
+  --the-prompt
+>.any));
 @*ARGS.push: "--header" unless @*ARGS.first(*.ends-with("header"));
-@*ARGS = @*ARGS.grep(*.starts-with(<--editor --output-method --header>.any));
 
 # run with a clean scope
 my constant &MAIN = &repl;

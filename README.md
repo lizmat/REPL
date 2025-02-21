@@ -27,15 +27,27 @@ COMMAND LINE INTERFACE
     $ repl
 
     # Invocation with some custom settings
-    $ repl --editor=Linenoise --output-method=raku --/header
+    $ repl --the-prompt='[:index:] :HHMM:' --symbols=🦋,🔥
+
+    [0] 20:51 🦋 if 42 {
+    [0] 20:51 🔥 say "foo"
+    [0] 20:51 🔥 }
+    foo
+    [0] 20:52 🦋
 
 The REPL command-line interface can be invoked with named arguments that have the same name as the named arguments to the `REPL.new` call. They are:
 
   * --editor - the editor to use (default: Any)
 
+  * --header - whether to show the full header (default: yes)
+
+  * --multi-line-ok - can expression span more than one line (default: yes)
+
   * --output-method - the output method to be used (default: gist)
 
-  * --header - whether to show the full header (default: yes)
+  * --symbols - symbols for prompt state (default: ">,*")
+
+  * --the-prompt - string for prompt (default: "[:index:] :symbol: ")
 
 Any other command-line arguments will be ignored.
 
