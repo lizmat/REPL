@@ -1,6 +1,11 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Add =stack command, idea stolen from Brian Duggan's
+      Repl::Tools distribution
+    - Bump dependencies on CodeUnit / Commands because we can
+    - Add dependency on Edit::Files
+    - Add =edit command
 
 0.0.17  2025-02-20T20:07:17+01:00
     - Made sure that :compiler and :multi-line-ok named args

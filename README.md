@@ -264,12 +264,12 @@ Shows an introduction to completions. Can be shortened to "=com".
 context
 -------
 
-Allows creation of and switching between 2 or more contexts: "new" creates a new context and switches to it, "switch" switches to an already existing context, and "list" shows the available contexts. Can be shortened to "=con".
+Allows creation of and switching between two or more contexts: "new" creates a new context and switches to it, "switch" switches to an already existing context, and "list" shows the available contexts. Can be shortened to "=con".
 
-editor
-------
+edit
+----
 
-Shows the name of the editor logic being used. Can be shortened all the way to "=ed".
+Edit the file given, or the last file that was saved with =write. Can be shortened to "=ed".
 
 exit
 ----
@@ -281,10 +281,15 @@ help
 
 Shows a list of available commands. Can be shortened all the way to "=h".
 
+info
+----
+
+Shows the name of the editor logic being used. Can be shortened to to "=inf".
+
 introduction
 ------------
 
-Shows a general introduction. Can be shortened to "=in".
+Shows a general introduction. Can be shortened to "=int".
 
 output [method]
 ---------------
@@ -305,6 +310,11 @@ reset
 -----
 
 Reset the status of the REPL as if it was freshly entered.
+
+stack
+-----
+
+Show the caller stack from where the REPL has been called. Only makes sense if the REPL is being called from within a program, rather than from the command line. Can be shortened to "=s".
 
 write [path]
 ------------

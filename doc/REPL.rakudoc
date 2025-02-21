@@ -332,15 +332,15 @@ Shows an introduction to completions.  Can be shortened to "=com".
 
 =head2 context
 
-Allows creation of and switching between 2 or more contexts: "new"
+Allows creation of and switching between two or more contexts: "new"
 creates a new context and switches to it, "switch" switches to an
 already existing context, and "list" shows the available contexts.
 Can be shortened to "=con".
 
-=head2 editor
+=head2 edit
 
-Shows the name of the editor logic being used.  Can be shortened all the
-way to "=ed".
+Edit the file given, or the last file that was saved with =write.
+Can be shortened to "=ed".
 
 =head2 exit
 
@@ -350,9 +350,14 @@ Leaves the REPL.  Can be shortened all the way to "=ex".
 
 Shows a list of available commands.  Can be shortened all the way to "=h".
 
+=head2 info
+
+Shows the name of the editor logic being used.  Can be shortened to
+to "=inf".
+
 =head2 introduction
 
-Shows a general introduction.  Can be shortened to "=in".
+Shows a general introduction.  Can be shortened to "=int".
 
 =head2 output [method]
 
@@ -374,6 +379,12 @@ commands need not have it specified.
 =head2 reset
 
 Reset the status of the REPL as if it was freshly entered.
+
+=head2 stack
+
+Show the caller stack from where the REPL has been called.  Only
+makes sense if the REPL is being called from within a program,
+rather than from the command line.  Can be shortened to "=s".
 
 =head2 write [path]
 

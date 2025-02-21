@@ -1,7 +1,8 @@
 #- prologue --------------------------------------------------------------------
 use nqp;  # hopefully will replace the REPL class in core at some point
-use CodeUnit:ver<0.0.1+>:auth<zef:lizmat>;
-use Commands:ver<0.0.6+>:auth<zef:lizmat>;
+use CodeUnit:ver<0.0.2+>:auth<zef:lizmat>;
+use Commands:ver<0.0.7+>:auth<zef:lizmat>;
+use Edit::Files:ver<0.0.6+>:auth<zef:lizmat>;
 use Prompt:ver<0.0.9+>:auth<zef:lizmat>;
 use Prompt::Expand:ver<0.0.3+>:auth<zef:lizmat>;
 use String::Utils:ver<0.0.32+>:auth<zef:lizmat> <word-at>;
@@ -13,6 +14,10 @@ PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
 
 my $default-context := nqp::ctxcaller(nqp::ctx);
 my constant $default-context-name = '(default)';
+
+# Defaults for highlighting on terminals
+my constant BON  = "\e[1m";   # BOLD ON
+my constant BOFF = "\e[22m";  # BOLD OFF
 
 #- standard completions --------------------------------------------------------
 
@@ -79,7 +84,12 @@ my sub standard-completions($line, $pos is copy = $line.chars) {
 #- primary handlers ------------------------------------------------------------
 
 # Just a visual divider
-my sub line() { say "-" x 70 }
+my multi sub line() {
+    say "-" x 70
+}
+my multi sub line($title) {
+    say "-- $title " ~ "-" x 66 - $title.chars;
+}
 
 # The active REPL class and Commands object
 my $app;
@@ -87,8 +97,7 @@ my $commands;
 my $helper;
 
 my sub completions($) {
-    say expand ":bold:About TAB completions:unbold:";
-    line;
+    line expand ":bold:About TAB completions:unbold:";
     print expand q:to/COMPLETIONS/;
 The TAB key has a special function in the REPL.  When pressed,
 the REPL tries to elucidate what you as a user want to expand.
@@ -101,7 +110,7 @@ beginning again.  At any point you can add additional characters
 (or remove them) and press TAB again to create a new list of
 alternatives.
 
-For example, pressing "=", "e", "TAB" will show "=editor".
+For example, pressing "=", "e", "TAB" will show "=edit".
 Pressing TAB again, will show "=exit".  And pressing TAB once
 again, will show "=e" again.
 
@@ -178,8 +187,13 @@ my sub context-handler($_) {
     }
 }
 
-my sub editor($) {
-    say "Using the $app.prompt.editor-name() editor.";
+my sub edit($_) {
+    if .[1] // $app.path-of-code -> $file {
+        edit-files($file);
+    }
+    else {
+        say "No filename specified, and no default path found";
+    }
 }
 
 my sub help($_) {
@@ -187,16 +201,18 @@ my sub help($_) {
         $helper.process($deeper)
     }
     else {
-        say "Available REPL commands:";
-        line;
+        line "Available REPL commands:";
         say $commands.primaries().join(" ").naive-word-wrapper;
         say "\nMore in-depth help available with '=help <command>'";
     }
 }
 
+my sub info($) {
+    say "Using the $app.prompt.editor-name() editor.";
+}
+
 my sub introduction($) {
-    say expand ":bold:Introduction to the Read Evaluate Print Loop:unbold:";
-    line;
+    line expand ":bold:Introduction to the Read Evaluate Print Loop:unbold:";
     print expand qq:to/INTRODUCTION/;
 The Read Evaluate Print Loop provides an interactive way to enter
 Raku Programming Language commands and see the results of their
@@ -232,7 +248,7 @@ INTRODUCTION
 If you need more help on a REPL command, you can do '=help =command'.
 
 :bold:Note::unbold: you can always press TAB for so-called "TAB completions".
-This allows you to get to e.g. get to '=help =editor' by entering
+This allows you to get to e.g. get to '=help =edit' by entering
 "=", "h", TAB, "=", "e", TAB.  See "=completions" for more info
 on TAB completions.
 INTRODUCTION
@@ -271,6 +287,46 @@ my sub reset($_) {
     say "Status has been reset";
 }
 
+my sub stack($) {
+    my $bt    := Backtrace.new;
+    my @frames = $bt.list;
+    if @frames.tail.file.ends-with("bin/repl") {
+        say "No stack information inside cold repl";
+        return;
+    }
+
+    my $this := $bt[1].file;  # skip Backtrace.new itself
+    my $index = @frames.first: *.file eq $this, :k, :end;
+    without $index {
+        say "No sensible stack information found";
+        return;
+    }
+
+    line "stack";
+    .print unless .is-setting || .is-hidden for @frames.skip($index);
+    put "";
+
+    my $here := $bt[++$index];
+    my $file := $here.file.subst(/ ' (' <-[)]>+ ')' $$/,'');
+    line "file: $file";
+    my $current := $here.line;
+    my $width   := $current.chars + 2;
+
+    my str @lines = $file eq '-e'
+      ?? Rakudo::Internals.PROGRAM.substr(3).lines
+      !! ($file.IO.lines // Empty);
+    @lines.unshift("");  # make indices 1-based
+
+    for @lines.kv.skip(2) -> $i, $line {
+        if $current - 10 < $i < $current + 10 {
+            print BON if $i == $current;
+            put "$i.fmt("%{$width}d") $line";
+            print BOFF if $i == $current;
+        }
+    }
+    put "";
+}
+
 my sub write($_) {
     if .[1] // $app.path-of-code -> $path {
         $app.path-of-code = $path;
@@ -303,11 +359,9 @@ creates a new context and switches to it, "switch" switches to an
 already existing context, and "list" shows the available contexts.
 CONTEXT
 
-  editor => q:to/EDITOR/,
-Show the name of the underlying editor that is being used.  This is
-purely informational.  Note that only Linenoise and LineEditor allow
-tab-completions.
-EDITOR
+  edit => q:to/EDIT/,
+Edit the file given, or the last file that was saved with =write.
+EDIT
 
   exit => q:to/EXIT/,
 Exit and save any history.
@@ -318,6 +372,12 @@ Show available commands if used without additional argument.  If a
 command is specified as an additional argument, show any in-depth
 information about that command.
 HELP
+
+  info => q:to/INFO/,
+Show the name of the underlying editor that is being used.  This is
+purely informational.  Note that only Linenoise and LineEditor allow
+tab-completions.
+INFO
 
   introduction => q:to/INTRODUCTION/,
 Provides an introduction to the ReadEvaluatePrintLoop.
@@ -342,6 +402,12 @@ READ
 Reset the status of the REPL as if it was freshly entered.
 RESET
 
+  stack => q:to/STACK/,
+Show the caller stack from where the REPL has been called.  Only
+makes sense if the REPL is being called from within a program,
+rather than from the command line.
+STACK
+
   write => q:to/WRITE/,
 Write all lines entered that did *not* produce any output to the
 indicated path.  Remembers the path name from =read and =write so
@@ -357,8 +423,7 @@ my sub no-extended($_) {
 }
 
 my sub moreinfo(Str:D $command, Str:D $text) {
-    say "More information about: $command";
-    line;
+    line "More information about: $command";
     say $text.chomp
 }
 
@@ -629,13 +694,13 @@ role REPL:ver<0.0.17>:auth<zef:lizmat> {
               }
           },
           commands => (
+            "=context" => &context-handler,
             "=exit"    => { last },
             "=quit"    => { last },
-            "=context" => &context-handler,
             ""         => { next },
             (
-              &completions, &editor, &help, &introduction,
-              &output, &read, &reset, &write
+              &completions, &edit, &help, &info, &introduction,
+              &output, &read, &reset, &stack, &write
             ).map({ "=$_.name()" => $_ }).Slip
           ),
         );
