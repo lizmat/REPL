@@ -6,7 +6,7 @@
   "build-depends": [
   ],
   "depends": [
-    "CodeUnit:ver<0.0.2+>:auth<zef:lizmat>",
+    "CodeUnit:ver<0.0.3+>:auth<zef:lizmat>",
     "Commands:ver<0.0.7+>:auth<zef:lizmat>",
     "Edit::Files:ver<0.0.6+>:auth<zef:lizmat>",
     "Prompt:ver<0.0.9+>:auth<zef:lizmat>",
@@ -28,5 +28,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.0.18"
+  "version": "0.0.19"
 }

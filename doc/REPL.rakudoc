@@ -407,8 +407,7 @@ If the C<supports-completions> method returns C<True>, the standard
 tab-completion logic will provide:
 =item all relevant items from the CORE:: namespace
 =item any relevant items from the direct context (such as a REPL command)
-=item \^123 will tab-complete to ¹²³
-=item \_123 will tab-complete to ₁₂₃
+=item \123 wil change integer value to superscript: ¹²³, subscript: ₁₂₃
 =item foo! will tab-complete to FOO, foo, Foo
 
 Additionally, if the L<C<uniname-words>|https://raku.land/zef:lizmat/uniname-words>

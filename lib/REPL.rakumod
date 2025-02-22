@@ -1,6 +1,6 @@
 #- prologue --------------------------------------------------------------------
 use nqp;  # hopefully will replace the REPL class in core at some point
-use CodeUnit:ver<0.0.2+>:auth<zef:lizmat>;
+use CodeUnit:ver<0.0.3+>:auth<zef:lizmat>;
 use Commands:ver<0.0.7+>:auth<zef:lizmat>;
 use Edit::Files:ver<0.0.6+>:auth<zef:lizmat>;
 use Prompt:ver<0.0.9+>:auth<zef:lizmat>;
@@ -42,22 +42,17 @@ my sub standard-completions($line, $pos is copy = $line.chars) {
         }
     }
 
-    # Check for \^123, \_123, \word completions
+    # Check for \123, \word completions
     orwith $line.rindex('\\') -> $start is copy {
         without $line.index(' ', $start) {
             if $line.chars > $start {
-                my $word   := $line.substr($start+1).lc;
+                my $word   := $line.substr($start + 1).lc;
                 my $prefix := $line.substr(0, $start);
-                if $word.starts-with('^')
-                  && try $word.substr(1).Int -> $number {
-                    ($prefix ~ $number.Str(:superscript),)
+                with $word.Int -> $number {
+                    ($prefix ~ $number.Str(:superscript),
+                     $prefix ~ $number.Str(:subscript))
                 }
-                elsif $word.starts-with('_')
-                  && try $word.substr(1).Int -> $number {
-                    ($prefix ~ $number.Str(:subscript),)
-                }
-                orwith $uniname-words
-                  && $uniname-words($line.substr($start+1).lc) {
+                orwith $uniname-words && $uniname-words($word) {
                     .sort(*.uniname).map({ qq/$prefix$_.chr()/ })
                 }
             }
@@ -122,8 +117,8 @@ through "Date", "DateTime", "Dateish", all core Raku features.
 Finally, some special REPL completions will change the presentation
 of the string immediately preceding it.  They are:
 
-\^123  - change integer value to superscript: ¹²³ 
-\_123  - change integer value to subscript: ₁₂₃
+\heart - cycle through all unicode codepoints with "heart"
+\123  - change integer value to superscript: ¹²³, subscript: ₁₂₃
 fOo!   - cycle through FOO, foo, Foo (upper, lower, titlecase)
 COMPLETIONS
     line;
@@ -466,7 +461,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.18>:auth<zef:lizmat> {
+role REPL:ver<0.0.19>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
@@ -653,8 +648,10 @@ role REPL:ver<0.0.18>:auth<zef:lizmat> {
                   next;
               }
               elsif $state == CONTROL {
-                  say "Control flow commands not allowed in toplevel";
-                  $!codeunit.state = OK;
+                  my str $name = $!codeunit.exception.^name.substr(4).lc;
+                  say "Control flow command '$name' not allowed in toplevel";
+                  $!codeunit.state     = OK;
+                  $!codeunit.exception = Nil;
                   reset-code;
                   next;
               }

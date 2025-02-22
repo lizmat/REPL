@@ -2,6 +2,14 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.19  2025-02-22T14:14:12+01:00
+    - Add --multi-line-ok, --symbols, --the-prompt command line
+      arguments to the "repl" CLI
+    - Bump dependency on CodeUnit to get control exception
+      support
+    - Show name of unallowed control exceptions in error message
+    - Simplify TAB expansion for integer values: \123 → ¹²³ → ₁₂₃
+
 0.0.18  2025-02-21T14:54:44+01:00
     - Add =stack command, idea stolen from Brian Duggan's
       Repl::Tools distribution
@@ -92,7 +100,7 @@ Revision history for REPL
       allowing for quite a bit of code to be removed as that
       functionality is now abstracted into those modules
     - Add "exit", "quit", "help" and "editor" commands
-    - Remov all of the editor roles: they now live in the
+    - Remove all of the editor roles: they now live in the
       Prompt module
 
 0.0.5  2024-11-18T15:19:17+01:00

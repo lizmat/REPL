@@ -1,12 +1,11 @@
 use Test;
 use REPL;
 
-plan 7;
+plan 6;
 
 my constant &sc = &standard-completions;
 
-is-deeply sc("\\^123"), ("¹²³",), "superscripting integers";
-is-deeply sc("\\_123"), ("₁₂₃",), "subscripting integers";
+is-deeply sc("\\123"), ("¹²³","₁₂₃"), "super/subscripting integers";
 
 is-deeply sc("shout!"), 
   ("SHOUT","shout","Shout"),

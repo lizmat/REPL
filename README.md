@@ -342,9 +342,7 @@ If the `supports-completions` method returns `True`, the standard tab-completion
 
   * any relevant items from the direct context (such as a REPL command)
 
-  * \^123 will tab-complete to ¹²³
-
-  * \_123 will tab-complete to ₁₂₃
+  * \123 wil change integer value to superscript: ¹²³, subscript: ₁₂₃
 
   * foo! will tab-complete to FOO, foo, Foo
 
