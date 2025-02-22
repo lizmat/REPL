@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Lose leading space if an empty repl prompt has been
+      specified either specifically or with RAKUDO_REPL_PROMPT
 
 0.0.19  2025-02-22T14:14:12+01:00
     - Add --multi-line-ok, --symbols, --the-prompt command line

@@ -512,8 +512,10 @@ role REPL:ver<0.0.19>:auth<zef:lizmat> {
           unless nqp::isconcrete( $!codeunit);
         %!contexts{$!context = $default-context-name} := $!codeunit;
 
-        $!the-prompt ~= " :symbol: "
-          unless $!the-prompt.contains(":symbol:");
+        unless $!the-prompt.contains(":symbol:") {
+            $!the-prompt ~= $!the-prompt ?? " :symbol: " !! ":symbol: ";
+        }
+
         @!symbols =
           (@!symbols.head // %*ENV<RAKUDO_REPL_SYMBOLS> // ">,*").split(",")
           unless @!symbols > 1;
