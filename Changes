@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.20  2025-03-12T13:59:23+01:00
     - Lose leading space if an empty repl prompt has been
       specified either specifically or with RAKUDO_REPL_PROMPT
     - Add support for header message in repl() sub
