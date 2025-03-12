@@ -61,7 +61,27 @@ repl
 repl;
 ```
 
-The `repl` subroutine creates a new `REPL` object for that context and returns that. When called in sink context, it will activate the interactive Read, Evaluate, Print Loop.
+The `repl` subroutine creates a new `REPL` object for that context and returns that. When called in sink context, it will activate the interactive Read, Evaluate, Print Loop. This is the most common usage when debugging your code.
+
+```raku
+#line 666 foo.raku
+if 42 -> $answer {
+    repl "Looking for clues", :$answer;
+}
+```
+
+    Looking for clues
+    block at foo.raku line 666
+    answer: 42
+    [0] >
+
+Note that when the `repl` subroutine is used in a debugging mode, it will not show any header, other than the one that is specified with the positional argument (in this case "Looking for clues").
+
+Furthermore it will show the location of the [`callframe`](https://docs.raku.org/routine/callframe) that the code is currently in (in this case, line 666 in the file "foo.raku").
+
+Finally it will show the value of any named arguments to help you debug your code (in this case "answer: 32").
+
+It is also possible to save the `REPL` object at one place in the code, and actually run the REPL at a later time in another scope.
 
 ```raku
 my $repl = do {
@@ -75,8 +95,6 @@ my $repl = do {
 # variable is no longer in scope
 $repl.run;
 ```
-
-It is also possible to save the `REPL` object at one place in the code, and actually run the REPL at a later time in another scope.
 
 standard-completions
 --------------------

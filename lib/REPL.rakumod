@@ -19,6 +19,10 @@ my constant $default-context-name = '(default)';
 # Key to exit with
 my $exit-letter = $*DISTRO.is-win ?? "^Z" !! "^D";
 
+# Message on how to exit
+my $exit-message =
+  "To exit type '=quit' or '$exit-letter'. Type '=help' for help.";
+
 #- standard completions --------------------------------------------------------
 
 my $uniname-words = try "use uniname-words; &uniname-words".EVAL;
@@ -498,7 +502,7 @@ role REPL:ver<0.0.19>:auth<zef:lizmat> {
     has Bool $.is-win is built(:bind) = $*DISTRO.is-win;
 
     # Flag whether the extended header should be shown
-    has Bool $!header is built = True;
+    has $!header is built = More;
 
     # Number of time control-c was seen
     has int $!ctrl-c;
@@ -617,12 +621,16 @@ role REPL:ver<0.0.19>:auth<zef:lizmat> {
     method repl-loop(|c) { self.run(|c) }
 
     method run() {
-        if $!header {
-            self.val.say: $!codeunit.compiler-version(:no-unicode($!is-win));
-            $!header = False;
+        unless $!header ~~ Str {
+            $!header = $!header == More
+              ?? $!codeunit.compiler-version(:no-unicode($!is-win))
+                   ~ "\n"
+                   ~ $exit-message
+              !! $!header == Same
+                ?? $exit-message
+                !! "";
         }
-
-        say "To exit type '=quit' or '$exit-letter'. Type '=help' for help.";
+        self.val.say: $!header if $!header;
 
         my str $prompt;
         my str $code;
@@ -739,9 +747,19 @@ role REPL:ver<0.0.19>:auth<zef:lizmat> {
 #- subroutines -----------------------------------------------------------------
 
 # Debugging aid
-my sub repl(*%_) {
+my sub repl($header is copy = "", *%_) {
     my $context := nqp::ctxcaller(nqp::ctx);
-    REPL.new(:$context, :!header, |%_)
+    $header ~= "\n" if $header && !$header.ends-with("\n");
+
+    my $code     := callframe(1).code;
+    my $blocktype = $code.^name.lc;
+    $header ~= $blocktype eq 'block'
+      ?? expand("$blocktype :bold:$code.name():unbold:")
+      !! $blocktype;
+    $header ~= " at $code.file() line $code.line()";
+    $header ~= "\n$_.key(): $_.value.raku()" for %_.sort(*.key);
+
+    REPL.new(:$context, :$header, |%_)
 }
 
 #- (re-)exporting --------------------------------------------------------------

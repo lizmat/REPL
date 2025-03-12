@@ -3,6 +3,9 @@ Revision history for REPL
 {{$NEXT}}
     - Lose leading space if an empty repl prompt has been
       specified either specifically or with RAKUDO_REPL_PROMPT
+    - Add support for header message in repl() sub
+    - Add callframe mention when called through the repl() sub
+    - Show any named values when called through the repl() sub
 
 0.0.19  2025-02-22T14:14:12+01:00
     - Add --multi-line-ok, --symbols, --the-prompt command line
