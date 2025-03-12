@@ -181,7 +181,7 @@ Optional, Boolean. Indicate whether it is ok to interprete multiple lines of inp
 
 Used value available with the `.multi-line-ok` method.
 
-### the-prompt
+### :the-prompt
 
 Optional. Specifies what will be shown to the user before the user can enter characters. Defaults to what has been specified with the `RAKUDO_REPL_PROMPT` environment variable, or `"[:index:] :symbol: "`.
 
@@ -191,7 +191,7 @@ Note that if there is a prompt (implicitely) specified, the string ":symbol: " w
 
 The expanded prompt is also available with the `.the-prompt` method.
 
-### symbols
+### :symbols
 
 Optional. Specifies the symbols that should be used for the `":symbol:"` placeholder in the different REPL states. Defaults to what has been specified as a comma-separated list with the `RAKUDO_REPL_SYMBOLS` environment variable. Defaults to `">", "*"` if that is not specified.
 

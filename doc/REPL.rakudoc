@@ -222,7 +222,7 @@ has been specified with a true value.
 
 Used value available with the C<.multi-line-ok> method.
 
-=head3 the-prompt
+=head3 :the-prompt
 
 Optional.  Specifies what will be shown to the user before the user
 can enter characters.  Defaults to what has been specified with the
@@ -239,7 +239,7 @@ specifying a user prompt a bit easier.
 
 The expanded prompt is also available with the C<.the-prompt> method.
 
-=head3 symbols
+=head3 :symbols
 
 Optional.  Specifies the symbols that should be used for the
 C<":symbol:"> placeholder in the different REPL states.  Defaults
