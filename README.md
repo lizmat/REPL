@@ -71,17 +71,18 @@ if 42 -> $answer {
 ```
 
     Looking for clues
-    block at foo.raku line 666
     answer: 42
     [0] >
 
 Note that when the `repl` subroutine is used in a debugging mode, it will not show any header, other than the one that is specified with the positional argument (in this case "Looking for clues").
 
-Furthermore it will show the location of the [`callframe`](https://docs.raku.org/routine/callframe) that the code is currently in (in this case, line 666 in the file "foo.raku").
+If no explicit heafer is specified, it will show the location of the [`callframe`](https://docs.raku.org/routine/callframe) that the code is currently in (in this case that would have been: line 666 in the file "foo.raku").
 
 Finally it will show the value of any named arguments to help you debug your code (in this case "answer: 32").
 
 It is also possible to save the `REPL` object at one place in the code, and actually run the REPL at a later time in another scope.
+
+If you just press ENTER when using the REPL as a debugging aid in this manner, then it will be interpreted the same as "=quit" for convenience (especially if the `repl` sub is called in a loop).
 
 ```raku
 my $repl = do {

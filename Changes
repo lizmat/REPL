@@ -2,6 +2,12 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.21  2025-03-12T19:50:43+01:00
+    - Don't show callframe info if header specified
+    - Make empty input quit if run from the repl() sub
+    - Allow expansions in specific header in repl() sub
+    - Allow expansions in primed string values
+
 0.0.20  2025-03-12T13:59:23+01:00
     - Lose leading space if an empty repl prompt has been
       specified either specifically or with RAKUDO_REPL_PROMPT

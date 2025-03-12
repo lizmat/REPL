@@ -9,6 +9,7 @@ use REPL;
   --the-prompt
 >.any));
 @*ARGS.push: "--header" unless @*ARGS.first(*.ends-with("header"));
+@*ARGS.push: "--next=";
 
 # run with a clean scope
 my constant &MAIN = &repl;

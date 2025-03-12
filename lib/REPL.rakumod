@@ -186,6 +186,13 @@ my sub context-handler($_) {
     }
 }
 
+my sub default-next($) {
+    if $app.next -> $next {
+        $app.next = "";
+        $commands.process($next);
+    }
+}
+
 my sub edit($_) {
     if .[1] // $app.path-of-code -> $file {
         edit-files($file);
@@ -465,7 +472,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.20>:auth<zef:lizmat> {
+role REPL:ver<0.0.21>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
@@ -506,6 +513,9 @@ role REPL:ver<0.0.20>:auth<zef:lizmat> {
 
     # Number of time control-c was seen
     has int $!ctrl-c;
+
+    # The next command to be executed
+    has str $.next is rw;
 
     method TWEAK(
       Mu :$context = $default-context,
@@ -703,7 +713,7 @@ role REPL:ver<0.0.20>:auth<zef:lizmat> {
             $exit-letter => { last },
             "=exit"      => { last },
             "=quit"      => { last },
-            ""           => { next },
+            ""           => &default-next,
             (
               &completions, &edit, &help, &info, &introduction,
               &output, &read, &reset, &stack, &write
@@ -747,19 +757,30 @@ role REPL:ver<0.0.20>:auth<zef:lizmat> {
 #- subroutines -----------------------------------------------------------------
 
 # Debugging aid
-my sub repl($header is copy = "", *%_) {
+my sub repl($header is copy = "", :$next = "=quit", *%_) {
     my $context := nqp::ctxcaller(nqp::ctx);
-    $header ~= "\n" if $header && !$header.ends-with("\n");
 
-    my $code     := callframe(1).code;
-    my $blocktype = $code.^name.lc;
-    $header ~= $blocktype eq 'block'
-      ?? expand("$blocktype :bold:$code.name():unbold:")
-      !! $blocktype;
-    $header ~= " at $code.file() line $code.line()";
-    $header ~= "\n$_.key(): $_.value.raku()" for %_.sort(*.key);
+    my $code := callframe(1).code;
+    if $header {
+        $header = expand $header;
+    }
+    else {
+        my $blocktype = $code.^name.lc;
+        $header ~= $blocktype eq 'block'
+          ?? expand("$blocktype :bold:$code.name():unbold:")
+          !! $blocktype;
+        $header ~= " at $code.file() line $code.line()";
+    }
 
-    REPL.new(:$context, :$header, |%_)
+    for %_.sort(*.key) {
+        my $value = .value;
+        $value = $value ~~ Str
+          ?? expand($value)
+          !! $value.raku;
+        $header ~= "\n$_.key(): $value";
+    }
+
+    REPL.new(:$context, :$header, :$next, |%_)
 }
 
 #- (re-)exporting --------------------------------------------------------------
