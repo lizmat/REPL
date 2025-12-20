@@ -3,6 +3,8 @@
   "authors": [
     "Elizabeth Mattijsen"
   ],
+  "build-depends": [
+  ],
   "depends": {
     "runtime": {
       "requires": [
@@ -22,6 +24,9 @@
     "REPL": "lib/REPL.rakumod"
   },
   "raku": "6.d",
+  "resources": [
+  ],
+  "source-url": "https://github.com/lizmat/REPL.git",
   "support": {
     "bugtracker": "https://github.com/lizmat/REPL/issues",
     "email": "liz@raku.rocks",
@@ -29,6 +34,8 @@
   },
   "tags": [
     "REPL"
+  ],
+  "test-depends": [
   ],
   "version": "0.0.22"
 }
