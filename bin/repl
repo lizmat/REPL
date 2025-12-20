@@ -3,10 +3,10 @@ my constant raku-args = "-I" | "-M";
 
 # Calling with Raku specific command line args
 if @*ARGS.grep(*.starts-with(raku-args)) -> @raku-args {
-    note "recursing on ourselves";
+    note "recursing on ourselves in $*PROGRAM";
     my $proc := run
       $*EXECUTABLE, @raku-args,
-      $*PROGRAM, @*ARGS.grep(!*.starts-with(raku-args));
+      $*PROGRAM, @*ARGS.grep(!*.starts-with(raku-args)) || Empty;
     exit $proc.exitcode;
 }
 
