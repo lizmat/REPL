@@ -1,6 +1,9 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Allow Raku specific command line arguments to be
+      specified (such as -I and -M)
+    - Bump dependencies where possible
 
 0.0.21  2025-03-12T19:50:43+01:00
     - Don't show callframe info if header specified

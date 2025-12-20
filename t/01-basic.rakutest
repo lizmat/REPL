@@ -1,9 +1,18 @@
 use Test;
 use REPL;
 
-plan 2;
+plan 3;
 
 isa-ok REPL.new, REPL, 'can we create a REPL object';
 isa-ok repl, REPL, 'does the repl sub return a REPL object';
+
+my $proc = run
+  $*EXECUTABLE,
+  $*PROGRAM.parent(2).add("bin/repl"), "-MTest", "--/header",
+  :in, :out;
+
+$proc.in.say("ok 1,'testing'\n=quit");
+ok $proc.out.slurp.contains("ok 1 - testing"),
+  "test bin/repl with a module loaded";
 
 # vim: expandtab shiftwidth=4

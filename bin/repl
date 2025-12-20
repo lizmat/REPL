@@ -1,5 +1,15 @@
 use REPL;
+my constant raku-args = "-I" | "-M";
 
+# Calling with Raku specific command line args
+if @*ARGS.grep(*.starts-with(raku-args)) -> @raku-args {
+    my $proc := run
+      $*EXECUTABLE, @raku-args,
+      $*PROGRAM, @*ARGS.grep(!*.starts-with(raku-args));
+    exit $proc.exitcode;
+}
+
+# No Raku specific command line args
 @*ARGS = @*ARGS.grep(*.starts-with(<
   --editor
   --/header
@@ -11,7 +21,7 @@ use REPL;
 @*ARGS.push: "--header" unless @*ARGS.first(*.ends-with("header"));
 @*ARGS.push: "--next=";
 
-# run with a clean scope
-my constant &MAIN = &repl;
+# Cannot alias because we need the context
+sub MAIN(*%_) { repl(|%_) }
 
 # vim: expandtab shiftwidth=4

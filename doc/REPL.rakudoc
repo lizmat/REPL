@@ -28,6 +28,9 @@ both a programmable interface, as well as a ready made C<"repl"> CLI.
 # Simplest invocation
 $ repl
 
+# Pre-loading module Foo from local distribution
+$ repl -I. -MFoo
+
 # Invocation with some custom settings
 $ repl --the-prompt='[:index:] :HHMM:' --symbols=🦋,🔥
 =end code
@@ -49,6 +52,9 @@ are:
 =item --output-method - the output method to be used (default: gist)
 =item --symbols - symbols for prompt state (default: ">,*")
 =item --the-prompt - string for prompt (default: "[:index:] :symbol: ")
+
+It is also possible to specify C<-I> and C<-M> arguments for pre-loading
+any module while starting the REPL.
 
 Any other command-line arguments will be ignored.
 

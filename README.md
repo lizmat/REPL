@@ -26,6 +26,9 @@ COMMAND LINE INTERFACE
     # Simplest invocation
     $ repl
 
+    # Pre-loading module Foo from local distribution
+    $ repl -I. -MFoo
+
     # Invocation with some custom settings
     $ repl --the-prompt='[:index:] :HHMM:' --symbols=🦋,🔥
 
@@ -48,6 +51,8 @@ The REPL command-line interface can be invoked with named arguments that have th
   * --symbols - symbols for prompt state (default: ">,*")
 
   * --the-prompt - string for prompt (default: "[:index:] :symbol: ")
+
+It is also possible to specify `-I` and `-M` arguments for pre-loading any module while starting the REPL.
 
 Any other command-line arguments will be ignored.
 
