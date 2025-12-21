@@ -1,7 +1,7 @@
 use Test;
 use REPL;
 
-plan 3;
+plan 4;
 
 isa-ok REPL.new, REPL, 'can we create a REPL object';
 isa-ok repl, REPL, 'does the repl sub return a REPL object';
@@ -11,9 +11,13 @@ my $proc = run
   $*PROGRAM.parent(2).add("bin/repl"), "-MTest", "--/header",
   :in, :out;
 
-$proc.in.say("ok 1,'testing'\n=quit");
+$proc.in.say("Test\nok 1,'testing'\n=quit");
+my $out := $proc.out.slurp;
 todo "For some reason this fails in CI";
-ok $proc.out.slurp.contains("ok 1 - testing"),
-  "test bin/repl with a module loaded";
+ok $out.contains("(Test)"),
+  "test bin/repl with a module loaded sees class";
+todo "For some reason this fails in CI";
+ok $out.contains("ok 1 - testing"),
+  "test bin/repl with a module loaded sees imports";
 
 # vim: expandtab shiftwidth=4

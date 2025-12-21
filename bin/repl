@@ -21,7 +21,8 @@ if @*ARGS.grep(*.starts-with(raku-args)) -> @raku-args {
 @*ARGS.push: "--header" unless @*ARGS.first(*.ends-with("header"));
 @*ARGS.push: "--next=";
 
-# Cannot alias because we need the context
-sub MAIN(*%_) { repl(|%_) }
+# Cannot alias because we need the context to see imported classes
+my $context := context;
+sub MAIN(*%_) { repl(:$context, |%_) }
 
 # vim: expandtab shiftwidth=4

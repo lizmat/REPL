@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+    - Make sure that any classes that are used with -M
+      are also visible in the REPL
 
 0.0.22  2025-12-20T20:54:14+01:00
     - Allow Raku specific command line arguments to be

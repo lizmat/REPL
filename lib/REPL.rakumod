@@ -472,7 +472,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.22>:auth<zef:lizmat> {
+role REPL:ver<0.0.23>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
@@ -757,8 +757,10 @@ role REPL:ver<0.0.22>:auth<zef:lizmat> {
 #- subroutines -----------------------------------------------------------------
 
 # Debugging aid
-my sub repl($header is copy = "", :$next = "=quit", *%_) {
-    my $context := nqp::ctxcaller(nqp::ctx);
+my sub repl($header is copy = "", :$next = "=quit", *%_ --> REPL:D) {
+    my $context := %_<context>:exists
+      ?? (%_<context>:delete)<>
+      !! nqp::ctxcaller(nqp::ctx);
 
     my $code := callframe(1).code;
     if $header {
