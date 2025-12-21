@@ -1,6 +1,8 @@
 Revision history for REPL
 
 {{$NEXT}}
+
+0.0.23  2025-12-21T13:10:42+01:00
     - Make sure that any classes that are used with -M
       are also visible in the REPL
 
