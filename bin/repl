@@ -5,7 +5,7 @@ my constant raku-args = "-I" | "-M";
 if @*ARGS.grep(*.starts-with(raku-args)) -> @raku-args {
     my $proc := run
       $*EXECUTABLE, @raku-args,
-      $*PROGRAM, @*ARGS.grep(!*.starts-with(raku-args)) || Empty;
+      $?FILE, @*ARGS.grep(!*.starts-with(raku-args)) || Empty;
     exit $proc.exitcode;
 }
 
