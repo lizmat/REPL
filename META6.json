@@ -8,12 +8,12 @@
   "depends": {
     "runtime": {
       "requires": [
-        "CodeUnit:ver<0.0.8+>:auth<zef:lizmat>",
-        "Commands:ver<0.0.8+>:auth<zef:lizmat>",
-        "Edit::Files:ver<0.0.6+>:auth<zef:lizmat>",
-        "Prompt:ver<0.0.10+>:auth<zef:lizmat>",
-        "Prompt::Expand:ver<0.0.3+>:auth<zef:lizmat>",
-        "String::Utils:ver<0.0.36+>:auth<zef:lizmat>"
+        "CodeUnit:ver<0.0.9+>:auth<zef:lizmat>",
+        "Commands:ver<0.0.9+>:auth<zef:lizmat>",
+        "Edit::Files:ver<0.0.7+>:auth<zef:lizmat>",
+        "Prompt:ver<0.0.11+>:auth<zef:lizmat>",
+        "Prompt::Expand:ver<0.0.5+>:auth<zef:lizmat>",
+        "String::Utils:ver<0.0.40+>:auth<zef:lizmat>"
       ]
     }
   },
@@ -26,11 +26,11 @@
   "raku": "6.d",
   "resources": [
   ],
-  "source-url": "https://github.com/lizmat/REPL.git",
+  "source-url": "https://codeberg.org/lizmat/REPL.git",
   "support": {
-    "bugtracker": "https://github.com/lizmat/REPL/issues",
+    "bugtracker": "https://codeberg.org/lizmat/REPL/issues",
     "email": "liz@raku.rocks",
-    "source": "https://github.com/lizmat/REPL.git"
+    "source": "https://codeberg.org/lizmat/REPL.git"
   },
   "tags": [
     "REPL"
