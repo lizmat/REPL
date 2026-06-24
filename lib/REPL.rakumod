@@ -472,7 +472,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.24>:auth<zef:lizmat> {
+role REPL:ver<0.0.25>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
@@ -520,7 +520,7 @@ role REPL:ver<0.0.24>:auth<zef:lizmat> {
     method TWEAK(
       Mu :$context = $default-context,
          :$editor,
-         :@additional-completions
+         :$additional-completions
     ) {
         $!codeunit := CodeUnit.new(:$context, |%_)
           unless nqp::isconcrete( $!codeunit);
@@ -546,6 +546,7 @@ role REPL:ver<0.0.24>:auth<zef:lizmat> {
         }
 
         # Set up standard additional completions if none so far
+        my @additional-completions = $additional-completions<>;
         @additional-completions =
           &standard-completions,
           &additional-completions

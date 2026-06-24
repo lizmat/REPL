@@ -411,14 +411,14 @@ AUTHOR
 
 Elizabeth Mattijsen <liz@raku.rocks>
 
-Source can be located at: https://github.com/lizmat/REPL . Comments and Pull Requests are welcome.
+Source can be located at: https://codeberg.org/lizmat/REPL . Comments and Pull Requests are welcome.
 
 If you like this module, or what I'm doing more generally, committing to a [small sponsorship](https://github.com/sponsors/lizmat/) would mean a great deal to me!
 
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2024, 2025 Elizabeth Mattijsen
+Copyright 2024, 2025, 2026 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
