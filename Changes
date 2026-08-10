@@ -2,6 +2,9 @@ Revision history for REPL
 
 {{$NEXT}}
 
+0.0.26  2026-08-11T01:09:38+02:00
+    - Bump dependency on CodeUnit to fix infinilooping issue
+
 0.0.25  2026-06-24T21:09:36+02:00
     - Fix issue if a single Callable was specified with
       :additional-completions

@@ -1,6 +1,6 @@
 #- prologue --------------------------------------------------------------------
 use nqp;  # hopefully will replace the REPL class in core at some point
-use CodeUnit:ver<0.0.9+>:auth<zef:lizmat>;
+use CodeUnit:ver<0.0.11+>:auth<zef:lizmat>;
 use Commands:ver<0.0.9+>:auth<zef:lizmat>;
 use Edit::Files:ver<0.0.7+>:auth<zef:lizmat>;
 use Prompt:ver<0.0.10+>:auth<zef:lizmat>;
@@ -472,7 +472,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.25>:auth<zef:lizmat> {
+role REPL:ver<0.0.26>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;

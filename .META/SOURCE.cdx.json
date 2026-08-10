@@ -4,7 +4,7 @@
   "specVersion": "1.6",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-06-24T19:10:10+00:00",
+    "timestamp": "2026-08-10T23:10:13+00:00",
     "lifecycles": [
       {
         "phase": "pre-build"
@@ -19,7 +19,7 @@
     "component": {
       "type": "library",
       "mime-type": "text/plain",
-      "bom-ref": "pkg:raku/zef:lizmat/REPL@0.0.25",
+      "bom-ref": "pkg:raku/zef:lizmat/REPL@0.0.26",
       "authors": [
         {
           "bom-ref": "ElizabethMattijsen",
@@ -29,7 +29,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "REPL",
-      "version": "0.0.25",
+      "version": "0.0.26",
       "description": "A more easily configurable REPL",
       "scope": "required",
       "licenses": [
@@ -41,14 +41,14 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/REPL@0.0.25",
+      "purl": "pkg:raku/zef:lizmat/REPL@0.0.26",
       "externalReferences": [
         {
           "url": "https://codeberg.org/lizmat/REPL",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/REPL?v=0.0.25",
+          "url": "https://raku.land/zef:lizmat/REPL?v=0.0.26",
           "type": "documentation"
         },
         {
@@ -153,7 +153,7 @@
       "publisher": "Rakudo Core Developers",
       "group": "Rakudo Core Developers",
       "name": "Rakudo",
-      "version": "2026.05-159-gc9d0f81cc",
+      "version": "2026.07-78-gdd6634169",
       "description": "The Rakudo™ Compiler implementing the Raku® Programming Language",
       "scope": "required",
       "licenses": [
@@ -176,7 +176,7 @@
           "type": "issue-tracker"
         },
         {
-          "url": "https://github.com/rakudo/rakudo/archive/c9d0f81cc.zip",
+          "url": "https://github.com/rakudo/rakudo/archive/dd6634169.zip",
           "type": "source-distribution"
         },
         {
@@ -197,7 +197,7 @@
       "publisher": "The MoarVM Team",
       "group": "The MoarVM Team",
       "name": "Moar",
-      "version": "2026.05.1-11-gc68094f8b",
+      "version": "2026.07-10-g24430e20d",
       "description": "Short for \"Metamodel On A Runtime\", MoarVM is a modern virtual machine built for the Rakudo compiler and the NQP Compiler Toolchain.",
       "scope": "required",
       "licenses": [
@@ -224,7 +224,7 @@
           "type": "chat"
         },
         {
-          "url": "https://github.com/MoarVM/MoarVM.git/archive/refs/tags/c68094f8b.zip",
+          "url": "https://github.com/MoarVM/MoarVM.git/archive/refs/tags/24430e20d.zip",
           "type": "source-distribution"
         }
       ]
@@ -232,7 +232,7 @@
     {
       "type": "library",
       "mime-type": "text/plain",
-      "bom-ref": "pkg:raku/zef:lizmat/CodeUnit?vers=vers:raku/%3E=0.0.9",
+      "bom-ref": "pkg:raku/zef:lizmat/CodeUnit?vers=vers:raku/%3E=0.0.11",
       "authors": [
         {
           "bom-ref": "ElizabethMattijsen",
@@ -242,7 +242,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "CodeUnit",
-      "version": "0.0.9",
+      "version": "0.0.11",
       "description": "Provide a unit for execution of code",
       "scope": "required",
       "licenses": [
@@ -254,14 +254,14 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/CodeUnit@0.0.9",
+      "purl": "pkg:raku/zef:lizmat/CodeUnit@0.0.11",
       "externalReferences": [
         {
           "url": "https://codeberg.org/lizmat/CodeUnit",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/CodeUnit?v=0.0.9",
+          "url": "https://raku.land/zef:lizmat/CodeUnit?v=0.0.11",
           "type": "documentation"
         },
         {
@@ -351,7 +351,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "DateTime::strftime",
-      "version": "0.0.6",
+      "version": "0.0.8",
       "description": "provide strftime() formatting for DateTime objects",
       "scope": "required",
       "licenses": [
@@ -363,14 +363,14 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/DateTime::strftime@0.0.6",
+      "purl": "pkg:raku/zef:lizmat/DateTime::strftime@0.0.8",
       "externalReferences": [
         {
           "url": "https://codeberg.org/lizmat/DateTime-strftime",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/DateTime::strftime?v=0.0.6",
+          "url": "https://raku.land/zef:lizmat/DateTime::strftime?v=0.0.8",
           "type": "documentation"
         },
         {
@@ -501,7 +501,7 @@
     {
       "type": "library",
       "mime-type": "text/plain",
-      "bom-ref": "pkg:raku/zef:lizmat/Locale::Dates?vers=vers:raku/%3E=0.0.6",
+      "bom-ref": "pkg:raku/zef:lizmat/Locale::Dates?vers=vers:raku/%3E=0.0.7",
       "authors": [
         {
           "bom-ref": "ElizabethMattijsen",
@@ -511,7 +511,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "Locale::Dates",
-      "version": "0.0.6",
+      "version": "0.0.7",
       "description": "encapsulate locale information about dates",
       "scope": "required",
       "licenses": [
@@ -523,27 +523,23 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/Locale::Dates@0.0.6",
+      "purl": "pkg:raku/zef:lizmat/Locale::Dates@0.0.7",
       "externalReferences": [
         {
-          "url": "https://github.com/lizmat/Locale-Dates",
+          "url": "https://codeberg.org/lizmat/Locale-Dates",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/Locale::Dates?v=0.0.6",
+          "url": "https://raku.land/zef:lizmat/Locale::Dates?v=0.0.7",
           "type": "documentation"
         },
         {
-          "url": "https://github.com/lizmat/Locale-Dates/issues",
+          "url": "https://codeberg.org/lizmat/Locale-Dates/issues",
           "type": "issue-tracker"
         },
         {
           "url": "https://spdx.org/licenses/Artistic-2.0.json",
           "type": "license"
-        },
-        {
-          "url": "https://github.com/lizmat/Locale-Dates/archive/refs/tags/0.0.6.zip",
-          "type": "source-distribution"
         },
         {
           "url": "mailto:liz@raku.rocks",
@@ -900,7 +896,7 @@
       "type": "distribution"
     },
     {
-      "url": "https://raku.land/zef:lizmat/REPL?v=0.0.25",
+      "url": "https://raku.land/zef:lizmat/REPL?v=0.0.26",
       "type": "documentation"
     },
     {
@@ -924,7 +920,7 @@
       ]
     },
     {
-      "ref": "pkg:raku/zef:lizmat/CodeUnit?vers=vers:raku/%3E=0.0.9"
+      "ref": "pkg:raku/zef:lizmat/CodeUnit?vers=vers:raku/%3E=0.0.11"
     },
     {
       "ref": "pkg:raku/zef:lizmat/Commands?vers=vers:raku/%3E=0.0.9"
@@ -937,7 +933,7 @@
       "dependsOn": [
         "pkg:raku/zef:lizmat/DateTime::strftime?vers=vers:raku/%3E=0.0.6",
         "pkg:raku/zef:lizmat/Hash::Agnostic?vers=vers:raku/%3E=0.0.20",
-        "pkg:raku/zef:lizmat/Locale::Dates?vers=vers:raku/%3E=0.0.6",
+        "pkg:raku/zef:lizmat/Locale::Dates?vers=vers:raku/%3E=0.0.7",
         "pkg:raku/zef:lizmat/Map::Agnostic?vers=vers:raku/%3E=0.0.13",
         "pkg:raku/zef:lizmat/Map::Match?vers=vers:raku/%3E=0.0.10",
         "pkg:raku/zef:lizmat/Text::Emoji?vers=vers:raku/%3E=0.0.11"
