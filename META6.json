@@ -13,7 +13,7 @@
         "Edit::Files:ver<0.0.7+>:auth<zef:lizmat>",
         "Prompt:ver<0.0.11+>:auth<zef:lizmat>",
         "Prompt::Expand:ver<0.0.5+>:auth<zef:lizmat>",
-        "String::Utils:ver<0.0.40+>:auth<zef:lizmat>"
+        "String::Utils:ver<0.0.41+>:auth<zef:lizmat>"
       ]
     }
   },
@@ -37,5 +37,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.0.26"
+  "version": "0.0.27"
 }

@@ -4,7 +4,7 @@
   "specVersion": "1.6",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-10T23:10:13+00:00",
+    "timestamp": "2026-11-22T17:27:44+00:00",
     "lifecycles": [
       {
         "phase": "pre-build"
@@ -19,7 +19,7 @@
     "component": {
       "type": "library",
       "mime-type": "text/plain",
-      "bom-ref": "pkg:raku/zef:lizmat/REPL@0.0.26",
+      "bom-ref": "pkg:raku/zef:lizmat/REPL@0.0.27",
       "authors": [
         {
           "bom-ref": "ElizabethMattijsen",
@@ -29,7 +29,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "REPL",
-      "version": "0.0.26",
+      "version": "0.0.27",
       "description": "A more easily configurable REPL",
       "scope": "required",
       "licenses": [
@@ -41,14 +41,14 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/REPL@0.0.26",
+      "purl": "pkg:raku/zef:lizmat/REPL@0.0.27",
       "externalReferences": [
         {
           "url": "https://codeberg.org/lizmat/REPL",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/REPL?v=0.0.26",
+          "url": "https://raku.land/zef:lizmat/REPL?v=0.0.27",
           "type": "documentation"
         },
         {
@@ -82,7 +82,7 @@
         {
           "type": "library",
           "mime-type": "text/plain",
-          "bom-ref": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.13",
+          "bom-ref": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.14",
           "authors": [
             {
               "bom-ref": "ElizabethMattijsen",
@@ -92,7 +92,7 @@
           "publisher": "zef",
           "group": "zef:lizmat",
           "name": "SBOM::Raku",
-          "version": "0.0.13",
+          "version": "0.0.14",
           "description": "Raku specific SBOM functionality",
           "scope": "required",
           "licenses": [
@@ -104,27 +104,23 @@
               }
             }
           ],
-          "purl": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.13",
+          "purl": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.14",
           "externalReferences": [
             {
-              "url": "https://github.com/lizmat/SBOM-Raku",
+              "url": "https://codeberg.org/lizmat/SBOM-Raku",
               "type": "distribution"
             },
             {
-              "url": "https://raku.land/zef:lizmat/SBOM::Raku?v=0.0.13",
+              "url": "https://raku.land/zef:lizmat/SBOM::Raku?v=0.0.14",
               "type": "documentation"
             },
             {
-              "url": "https://github.com/lizmat/SBOM-Raku/issues",
+              "url": "https://codeberg.org/lizmat/SBOM-Raku/issues",
               "type": "issue-tracker"
             },
             {
               "url": "https://spdx.org/licenses/Artistic-2.0.json",
               "type": "license"
-            },
-            {
-              "url": "https://github.com/lizmat/SBOM-Raku/archive/refs/tags/0.0.13.zip",
-              "type": "source-distribution"
             },
             {
               "url": "mailto:liz@raku.rocks",
@@ -153,7 +149,7 @@
       "publisher": "Rakudo Core Developers",
       "group": "Rakudo Core Developers",
       "name": "Rakudo",
-      "version": "2026.07-78-gdd6634169",
+      "version": "2026.11-31-ge97377557b",
       "description": "The Rakudo™ Compiler implementing the Raku® Programming Language",
       "scope": "required",
       "licenses": [
@@ -176,7 +172,7 @@
           "type": "issue-tracker"
         },
         {
-          "url": "https://github.com/rakudo/rakudo/archive/dd6634169.zip",
+          "url": "https://github.com/rakudo/rakudo/archive/e97377557b.zip",
           "type": "source-distribution"
         },
         {
@@ -197,7 +193,7 @@
       "publisher": "The MoarVM Team",
       "group": "The MoarVM Team",
       "name": "Moar",
-      "version": "2026.07-10-g24430e20d",
+      "version": "2026.11-11-g5249be7aa",
       "description": "Short for \"Metamodel On A Runtime\", MoarVM is a modern virtual machine built for the Rakudo compiler and the NQP Compiler Toolchain.",
       "scope": "required",
       "licenses": [
@@ -224,7 +220,7 @@
           "type": "chat"
         },
         {
-          "url": "https://github.com/MoarVM/MoarVM.git/archive/refs/tags/24430e20d.zip",
+          "url": "https://github.com/MoarVM/MoarVM.git/archive/refs/tags/5249be7aa.zip",
           "type": "source-distribution"
         }
       ]
@@ -769,7 +765,7 @@
     {
       "type": "library",
       "mime-type": "text/plain",
-      "bom-ref": "pkg:raku/zef:lizmat/String::Utils?vers=vers:raku/%3E=0.0.40",
+      "bom-ref": "pkg:raku/zef:lizmat/String::Utils?vers=vers:raku/%3E=0.0.41",
       "authors": [
         {
           "bom-ref": "ElizabethMattijsen",
@@ -779,7 +775,7 @@
       "publisher": "zef",
       "group": "zef:lizmat",
       "name": "String::Utils",
-      "version": "0.0.40",
+      "version": "0.0.41",
       "description": "Provide some optimized string functions",
       "scope": "required",
       "licenses": [
@@ -791,14 +787,14 @@
           }
         }
       ],
-      "purl": "pkg:raku/zef:lizmat/String::Utils@0.0.40",
+      "purl": "pkg:raku/zef:lizmat/String::Utils@0.0.41",
       "externalReferences": [
         {
           "url": "https://github.com/lizmat/String-Utils",
           "type": "distribution"
         },
         {
-          "url": "https://raku.land/zef:lizmat/String::Utils?v=0.0.40",
+          "url": "https://raku.land/zef:lizmat/String::Utils?v=0.0.41",
           "type": "documentation"
         },
         {
@@ -810,7 +806,7 @@
           "type": "license"
         },
         {
-          "url": "https://github.com/lizmat/String-Utils/archive/refs/tags/0.0.40.zip",
+          "url": "https://github.com/lizmat/String-Utils/archive/refs/tags/0.0.41.zip",
           "type": "source-distribution"
         },
         {
@@ -896,7 +892,7 @@
       "type": "distribution"
     },
     {
-      "url": "https://raku.land/zef:lizmat/REPL?v=0.0.26",
+      "url": "https://raku.land/zef:lizmat/REPL?v=0.0.27",
       "type": "documentation"
     },
     {
@@ -943,13 +939,13 @@
       "ref": "pkg:raku/zef:lizmat/Prompt?vers=vers:raku/%3E=0.0.11"
     },
     {
-      "ref": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.13",
+      "ref": "pkg:raku/zef:lizmat/SBOM::Raku@0.0.14",
       "dependsOn": [
         "Rakudo"
       ]
     },
     {
-      "ref": "pkg:raku/zef:lizmat/String::Utils?vers=vers:raku/%3E=0.0.40"
+      "ref": "pkg:raku/zef:lizmat/String::Utils?vers=vers:raku/%3E=0.0.41"
     }
   ]
 }

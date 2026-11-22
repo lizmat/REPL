@@ -5,7 +5,7 @@ use Commands:ver<0.0.9+>:auth<zef:lizmat>;
 use Edit::Files:ver<0.0.7+>:auth<zef:lizmat>;
 use Prompt:ver<0.0.10+>:auth<zef:lizmat>;
 use Prompt::Expand:ver<0.0.3+>:auth<zef:lizmat>;
-use String::Utils:ver<0.0.40+>:auth<zef:lizmat> <word-at>;
+use String::Utils:ver<0.0.41+>:auth<zef:lizmat> <word-at>;
 
 PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {
     note "Uncaught exception on thread $*THREAD.id():\n"
@@ -472,7 +472,7 @@ my sub additional-completions($line, $pos) {
 }
 
 #- REPL ------------------------------------------------------------------------
-role REPL:ver<0.0.26>:auth<zef:lizmat> {
+role REPL:ver<0.0.27>:auth<zef:lizmat> {
 
     # The codeunit handler (only one for now)
     has Mu  $.codeunit is built(:bind) handles <eval>;
