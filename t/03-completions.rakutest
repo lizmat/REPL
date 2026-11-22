@@ -1,7 +1,7 @@
 use Test;
 use REPL;
 
-plan 6;
+plan 7;
 
 my constant &sc = &standard-completions;
 
@@ -18,6 +18,11 @@ is-deeply sc("foo bar!"),
 is-deeply sc("foo bar! baz", 8),
   ("foo BAR","foo bar","foo Bar"),
   "shouting middle word";
+
+my $repl = REPL.new;
+is-deeply $repl.additional-completions.map(* ~~ Callable).List,
+  (True, True),
+  "default additional completions are all Callable";
 
 if uniname-words() {
     is-deeply sc("\\c[LOVE"),

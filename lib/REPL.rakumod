@@ -546,7 +546,8 @@ role REPL:ver<0.0.26>:auth<zef:lizmat> {
         }
 
         # Set up standard additional completions if none so far
-        my @additional-completions = $additional-completions<>;
+        my @additional-completions;
+        @additional-completions = $_<> with $additional-completions;
         @additional-completions =
           &standard-completions,
           &additional-completions
